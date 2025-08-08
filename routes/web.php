@@ -77,6 +77,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Payments Management
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
 
+    // Networks Management
+    Route::get('/networks', [AdminController::class, 'networks'])->name('networks');
+    Route::get('/networks/create', [AdminController::class, 'createNetwork'])->name('networks.create');
+    Route::post('/networks', [AdminController::class, 'storeNetwork'])->name('networks.store');
+    Route::get('/networks/{network}', [AdminController::class, 'showNetwork'])->name('networks.show');
+    Route::get('/networks/{network}/edit', [AdminController::class, 'editNetwork'])->name('networks.edit');
+    Route::put('/networks/{network}', [AdminController::class, 'updateNetwork'])->name('networks.update');
+    Route::patch('/networks/{network}/toggle-status', [AdminController::class, 'toggleNetworkStatus'])->name('networks.toggle-status');
+    Route::delete('/networks/{network}', [AdminController::class, 'destroyNetwork'])->name('networks.destroy');
+
     // Reports
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
 

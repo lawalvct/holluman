@@ -78,6 +78,15 @@
                         Payments
                     </a>
 
+                    <!-- Networks -->
+                    <a href="{{ route('admin.networks') }}"
+                       class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md {{ request()->routeIs('admin.networks*') ? 'bg-gray-700 text-white' : '' }}">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h6a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h6a2 2 0 002-2v-4a2 2 0 00-2-2m8-8v12a2 2 0 002 2h2a2 2 0 002-2V4a2 2 0 00-2-2h-2a2 2 0 00-2 2z" />
+                        </svg>
+                        Networks
+                    </a>
+
                     <!-- Reports -->
                     <a href="{{ route('admin.reports') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md {{ request()->routeIs('admin.reports*') ? 'bg-gray-700 text-white' : '' }}">

@@ -9,8 +9,10 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\Payment;
 use App\Models\WalletTransaction;
+use App\Models\Network;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -379,5 +381,168 @@ class AdminController extends Controller
     public function settings()
     {
         return view('admin.settings.index');
+    }
+
+    /**
+     * Display networks management
+     */
+    public function networks(Request $request)
+    {
+        $query = Network::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('full_name', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        $networks = $query->ordered()->paginate(15);
+
+        $stats = [
+            'total_networks' => Network::count(),
+            'active_networks' => Network::where('is_active', true)->count(),
+            'mobile_networks' => Network::where('type', 'mobile')->count(),
+            'broadband_networks' => Network::where('type', 'broadband')->count(),
+        ];
+
+        return view('admin.networks.index', compact('networks', 'stats'));
+    }
+
+    /**
+     * Show network creation form
+     */
+    public function createNetwork()
+    {
+        return view('admin.networks.create');
+    }
+
+    /**
+     * Store new network
+     */
+    public function storeNetwork(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10|unique:networks,code',
+            'full_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'color' => 'nullable|string|max:7',
+            'type' => 'required|in:mobile,broadband,fiber,satellite',
+            'coverage_percentage' => 'nullable|numeric|min:0|max:100',
+            'service_areas' => 'nullable|array',
+            'contact_info' => 'nullable|array',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $data = $request->except(['image']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('networks', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        Network::create($data);
+
+        return redirect()->route('admin.networks')->with('success', 'Network created successfully.');
+    }
+
+    /**
+     * Show network details
+     */
+    public function showNetwork(Network $network)
+    {
+        return view('admin.networks.show', compact('network'));
+    }
+
+    /**
+     * Show network edit form
+     */
+    public function editNetwork(Network $network)
+    {
+        return view('admin.networks.edit', compact('network'));
+    }
+
+    /**
+     * Update network
+     */
+    public function updateNetwork(Request $request, Network $network)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10|unique:networks,code,' . $network->id,
+            'full_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'color' => 'nullable|string|max:7',
+            'type' => 'required|in:mobile,broadband,fiber,satellite',
+            'coverage_percentage' => 'nullable|numeric|min:0|max:100',
+            'service_areas' => 'nullable|array',
+            'contact_info' => 'nullable|array',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $data = $request->except(['image']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($network->image) {
+                Storage::disk('public')->delete($network->image);
+            }
+            $imagePath = $request->file('image')->store('networks', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        $network->update($data);
+
+        return redirect()->route('admin.networks')->with('success', 'Network updated successfully.');
+    }
+
+    /**
+     * Toggle network status
+     */
+    public function toggleNetworkStatus(Network $network)
+    {
+        $network->update([
+            'is_active' => !$network->is_active
+        ]);
+
+        $status = $network->is_active ? 'activated' : 'deactivated';
+        return back()->with('success', "Network has been {$status} successfully.");
+    }
+
+    /**
+     * Delete network
+     */
+    public function destroyNetwork(Network $network)
+    {
+        // Delete image if exists
+        if ($network->image) {
+            Storage::disk('public')->delete($network->image);
+        }
+
+        $network->delete();
+
+        return redirect()->route('admin.networks')->with('success', 'Network deleted successfully.');
     }
 }
