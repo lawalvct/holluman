@@ -124,8 +124,93 @@
                 </div>
 
                 <!-- Payment Method Selection -->
-                <form method="POST" action="{{ route('subscribe', $plan) }}" x-data="{ paymentMethod: 'wallet' }">
+                <form method="POST" action="{{ route('subscribe', $plan) }}" x-data="{ paymentMethod: 'wallet', selectedNetwork: '' }">
                     @csrf
+
+                    <!-- Network Selection -->
+                    <div class="mb-6">
+                        <label for="network_id" class="block text-sm font-medium text-gray-700 mb-3">
+                            <i class="fas fa-network-wired mr-2 text-blue-600"></i>Select Network Provider *
+                        </label>
+                        <div class="relative">
+                            <select name="network_id" id="network_id" required x-model="selectedNetwork"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                <option value="">Choose your network provider</option>
+                                @foreach(\App\Models\Network::active()->ordered()->get() as $network)
+                                    <option value="{{ $network->id }}"
+                                            data-color="{{ $network->color }}"
+                                            {{ old('network_id') == $network->id ? 'selected' : '' }}>
+                                        {{ $network->name }} @if($network->full_name) - {{ $network->full_name }} @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                        @error('network_id')
+                            <p class="mt-1 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+
+                        <!-- Network Display Cards -->
+                        <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            @foreach(\App\Models\Network::active()->ordered()->get() as $network)
+                                <div class="relative">
+                                    <input type="radio" name="network_id_visual" value="{{ $network->id }}"
+                                           id="network_{{ $network->id }}" class="sr-only peer"
+                                           x-on:change="selectedNetwork = '{{ $network->id }}'; document.getElementById('network_id').value = '{{ $network->id }}'">
+                                    <label for="network_{{ $network->id }}"
+                                           class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all">
+                                        @if($network->image)
+                                            <img src="{{ $network->image_url }}" alt="{{ $network->name }}"
+                                                 class="h-8 w-8 object-contain mb-2">
+                                        @else
+                                            <div class="h-8 w-8 rounded-full flex items-center justify-center mb-2"
+                                                 style="background-color: {{ $network->color ?? '#6B7280' }}20; color: {{ $network->color ?? '#6B7280' }}">
+                                                <i class="fas fa-network-wired text-sm"></i>
+                                            </div>
+                                        @endif
+                                        <span class="text-xs font-medium text-gray-900">{{ $network->name }}</span>
+                                        @if($network->type)
+                                            <span class="text-xs text-gray-500 capitalize">{{ $network->type }}</span>
+                                        @endif
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="mb-6">
+                        <label for="subscriber_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-phone mr-2 text-green-600"></i>Phone Number *
+                        </label>
+                        <div class="relative">
+                            <input type="tel" name="subscriber_phone" id="subscriber_phone"
+                                   value="{{ old('subscriber_phone', auth()->user()->phone) }}" required
+                                   placeholder="e.g., 08012345678"
+                                   maxlength="11"
+                                   pattern="[0-9]{11}"
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                                
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-start space-x-2">
+                            <i class="fas fa-info-circle text-blue-500 text-sm mt-0.5"></i>
+                            <div class="text-xs text-gray-600">
+                                <p>Enter the 11-digit phone number you want to subscribe this plan to.</p>
+                                <p class="mt-1">Format: 08012345678 (starts with 0)</p>
+                            </div>
+                        </div>
+                        @error('subscriber_phone')
+                            <p class="mt-1 text-sm text-red-600">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                            </p>
+                        @enderror
+                    </div>
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-3">Choose Payment Method</label>
@@ -235,4 +320,143 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Phone number formatting and validation
+    const phoneInput = document.getElementById('subscriber_phone');
+
+    if (phoneInput) {
+        // Format phone number as user types
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+            // Limit to 11 digits
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+
+            e.target.value = value;
+
+            // Visual feedback
+            const isValid = value.length === 11 && (value.startsWith('080') || value.startsWith('081') ||
+                           value.startsWith('090') || value.startsWith('091') || value.startsWith('070') ||
+                           value.startsWith('071') || value.startsWith('081'));
+
+            if (value.length === 11) {
+                if (isValid) {
+                    e.target.classList.remove('border-red-300', 'ring-red-500');
+                    e.target.classList.add('border-green-300', 'ring-green-500');
+                } else {
+                    e.target.classList.remove('border-green-300', 'ring-green-500');
+                    e.target.classList.add('border-red-300', 'ring-red-500');
+                }
+            } else {
+                e.target.classList.remove('border-green-300', 'ring-green-500', 'border-red-300', 'ring-red-500');
+            }
+        });
+
+        // Validate on blur
+        phoneInput.addEventListener('blur', function(e) {
+            const value = e.target.value;
+            if (value && value.length !== 11) {
+                this.setCustomValidity('Phone number must be exactly 11 digits');
+            } else if (value && !value.match(/^(080|081|090|091|070|071|081)/)) {
+                this.setCustomValidity('Please enter a valid Nigerian phone number');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+
+    // Network selection synchronization
+    const networkRadios = document.querySelectorAll('input[name="network_id_visual"]');
+    const networkSelect = document.getElementById('network_id');
+
+    networkRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                networkSelect.value = this.value;
+                networkSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+
+    // Sync select dropdown with radio buttons
+    networkSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        networkRadios.forEach(radio => {
+            radio.checked = radio.value === selectedValue;
+        });
+
+        // Update visual feedback
+        networkRadios.forEach(radio => {
+            const label = radio.nextElementSibling;
+            if (radio.checked) {
+                label.classList.add('border-blue-500', 'bg-blue-50');
+                label.classList.remove('border-gray-200');
+            } else {
+                label.classList.remove('border-blue-500', 'bg-blue-50');
+                label.classList.add('border-gray-200');
+            }
+        });
+    });
+
+    // Form validation before submit
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const networkId = document.getElementById('network_id').value;
+            const phoneNumber = document.getElementById('subscriber_phone').value;
+
+            if (!networkId) {
+                e.preventDefault();
+                alert('Please select a network provider');
+                document.getElementById('network_id').focus();
+                return false;
+            }
+
+            if (!phoneNumber || phoneNumber.length !== 11) {
+                e.preventDefault();
+                alert('Please enter a valid 11-digit phone number');
+                document.getElementById('subscriber_phone').focus();
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            }
+        });
+    }
+
+    // Auto-fill phone number based on network selection (optional enhancement)
+    networkSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const networkName = selectedOption.text.toLowerCase();
+        const phoneInput = document.getElementById('subscriber_phone');
+
+        // Only auto-suggest if phone is empty
+        if (!phoneInput.value) {
+            let prefix = '';
+            if (networkName.includes('mtn')) {
+                prefix = '080';
+            } else if (networkName.includes('airtel')) {
+                prefix = '080';
+            } else if (networkName.includes('glo')) {
+                prefix = '080';
+            } else if (networkName.includes('9mobile')) {
+                prefix = '090';
+            }
+
+            if (prefix) {
+                phoneInput.placeholder = `e.g., ${prefix}12345678`;
+            }
+        }
+    });
+});
+</script>
+
 @endsection

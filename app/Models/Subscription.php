@@ -13,6 +13,8 @@ class Subscription extends Model
     protected $fillable = [
         'user_id',
         'subscription_plan_id',
+        'network_id',
+        'subscriber_phone',
         'amount_paid',
         'payment_method',
         'payment_reference',
@@ -45,6 +47,14 @@ class Subscription extends Model
     public function subscriptionPlan()
     {
         return $this->belongsTo(SubscriptionPlan::class);
+    }
+
+    /**
+     * Network for this subscription
+     */
+    public function network()
+    {
+        return $this->belongsTo(Network::class);
     }
 
     /**

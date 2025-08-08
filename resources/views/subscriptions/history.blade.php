@@ -41,7 +41,13 @@
                         Active Subscription: {{ $activeSubscription->subscriptionPlan->name }}
                     </h3>
                     <div class="mt-2 text-sm text-green-700">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div>
+                                <span class="font-medium">Network:</span> {{ $activeSubscription->network->name ?? 'N/A' }}
+                            </div>
+                            <div>
+                                <span class="font-medium">Phone:</span> {{ $activeSubscription->subscriber_phone ?? 'N/A' }}
+                            </div>
                             <div>
                                 <span class="font-medium">Speed:</span> {{ $activeSubscription->subscriptionPlan->speed }}
                             </div>
@@ -99,6 +105,10 @@
                                         <h3 class="text-lg font-medium text-gray-900">
                                             {{ $subscription->subscriptionPlan->name }}
                                         </h3>
+                                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                                            <span class="mr-4"><strong>Network:</strong> {{ $subscription->network->name ?? 'N/A' }}</span>
+                                            <span class="mr-4"><strong>Phone:</strong> {{ $subscription->subscriber_phone ?? 'N/A' }}</span>
+                                        </div>
                                         <div class="mt-1 flex items-center text-sm text-gray-500">
                                             <span class="mr-4">{{ $subscription->subscriptionPlan->speed }}</span>
                                             <span class="mr-4">{{ $subscription->subscriptionPlan->data_limit }}</span>

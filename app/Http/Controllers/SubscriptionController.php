@@ -54,6 +54,12 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'payment_method' => 'required|in:wallet,paystack,nomba',
+            'network_id' => 'required|exists:networks,id',
+            'subscriber_phone' => 'required|string|regex:/^[0-9]{11}$/',
+        ], [
+            'subscriber_phone.regex' => 'Phone number must be 11 digits.',
+            'network_id.required' => 'Please select a network provider.',
+            'network_id.exists' => 'Selected network provider is invalid.',
         ]);
 
         $user = Auth::user();
@@ -75,7 +81,7 @@ class SubscriptionController extends Controller
                 }
 
                 // Create subscription
-                $subscription = $this->createSubscription($user, $plan, 'wallet');
+                $subscription = $this->createSubscription($user, $plan, 'wallet', $request->network_id, $request->subscriber_phone);
 
                 // Debit wallet
                 $wallet->debit($plan->price, "Subscription payment for {$plan->name}", [
@@ -94,7 +100,7 @@ class SubscriptionController extends Controller
 
             } else {
                 // Pay with payment gateway (Paystack/Nomba)
-                $subscription = $this->createSubscription($user, $plan, $request->payment_method);
+                $subscription = $this->createSubscription($user, $plan, $request->payment_method, $request->network_id, $request->subscriber_phone);
 
                 // Create payment record
                 $payment = Payment::create([
@@ -127,11 +133,14 @@ class SubscriptionController extends Controller
     {
         $user = Auth::user();
         $subscriptions = $user->subscriptions()
-            ->with('subscriptionPlan')
+            ->with(['subscriptionPlan', 'network'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         $activeSubscription = $user->activeSubscription();
+        if ($activeSubscription) {
+            $activeSubscription->load('network');
+        }
 
         return view('subscriptions.history', compact('subscriptions', 'activeSubscription'));
     }
@@ -139,7 +148,7 @@ class SubscriptionController extends Controller
     /**
      * Create a new subscription
      */
-    private function createSubscription($user, $plan, $paymentMethod)
+    private function createSubscription($user, $plan, $paymentMethod, $networkId, $subscriberPhone)
     {
         $startDate = now();
         $endDate = $startDate->copy()->addDays($plan->duration_days);
@@ -147,6 +156,8 @@ class SubscriptionController extends Controller
         return Subscription::create([
             'user_id' => $user->id,
             'subscription_plan_id' => $plan->id,
+            'network_id' => $networkId,
+            'subscriber_phone' => $subscriberPhone,
             'amount_paid' => $plan->price,
             'payment_method' => $paymentMethod,
             'start_date' => $startDate,
