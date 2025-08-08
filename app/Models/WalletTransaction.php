@@ -76,7 +76,14 @@ class WalletTransaction extends Model
      */
     public function getFormattedAmountAttribute()
     {
-        $sign = $this->type === 'credit' ? '+' : '-';
-        return $sign . '₦' . number_format($this->amount, 2);
+        return '₦' . number_format($this->amount, 2);
+    }
+
+    /**
+     * Get formatted balance after
+     */
+    public function getFormattedBalanceAfterAttribute()
+    {
+        return '₦' . number_format($this->balance_after, 2);
     }
 }
