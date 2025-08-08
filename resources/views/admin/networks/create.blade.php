@@ -41,26 +41,26 @@
                     @error('code')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                 </div>
 
-                <div>
+                {{-- <div>
                     <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="e.g., Mobile Telephone Network">
                     @error('full_name')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-                </div>
+                </div> --}}
 
-                <div>
+                {{-- <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Network Type *</label>
                     <select id="type" name="type" required
                             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Select Type</option>
-                        <option value="mobile" {{ old('type') === 'mobile' ? 'selected' : '' }}>Mobile</option>
+                        <option selected value="mobile" {{ old('type') === 'mobile' ? 'selected' : '' }}>Mobile</option>
                         <option value="broadband" {{ old('type') === 'broadband' ? 'selected' : '' }}>Broadband</option>
                         <option value="fiber" {{ old('type') === 'fiber' ? 'selected' : '' }}>Fiber</option>
                         <option value="satellite" {{ old('type') === 'satellite' ? 'selected' : '' }}>Satellite</option>
                     </select>
                     @error('type')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-                </div>
+                </div> --}}
 
                 <div class="md:col-span-2">
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -91,27 +91,27 @@
                 </div>
 
                 <!-- Coverage Information -->
-                <div class="md:col-span-2 pt-6 border-t border-gray-200">
+                {{-- <div class="md:col-span-2 pt-6 border-t border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Coverage Information</h3>
-                </div>
+                </div> --}}
 
-                <div>
+                {{-- <div>
                     <label for="coverage_percentage" class="block text-sm font-medium text-gray-700 mb-2">Coverage Percentage</label>
                     <input type="number" id="coverage_percentage" name="coverage_percentage"
                            value="{{ old('coverage_percentage') }}" min="0" max="100" step="0.01"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="e.g., 85.5">
                     @error('coverage_percentage')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-                </div>
+                </div> --}}
 
-                <div>
+                {{-- <div>
                     <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
                     <input type="number" id="sort_order" name="sort_order" value="{{ old('sort_order', 0) }}" min="0"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     @error('sort_order')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-                </div>
+                </div> --}}
 
-                <div class="md:col-span-2">
+                {{-- <div class="md:col-span-2">
                     <label for="service_areas" class="block text-sm font-medium text-gray-700 mb-2">Service Areas</label>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                         @php
@@ -133,14 +133,14 @@
                         @endforeach
                     </div>
                     @error('service_areas')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
-                </div>
+                </div> --}}
 
                 <!-- Contact Information -->
-                <div class="md:col-span-2 pt-6 border-t border-gray-200">
+                {{-- <div class="md:col-span-2 pt-6 border-t border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
-                </div>
+                </div> --}}
 
-                <div>
+                {{-- <div>
                     <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
                     <input type="text" id="contact_phone" name="contact_info[phone]"
                            value="{{ old('contact_info.phone') }}"
@@ -163,7 +163,7 @@
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="e.g., https://www.network.com">
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Submit Button -->
             <div class="flex justify-end pt-6 border-t border-gray-200 mt-6">

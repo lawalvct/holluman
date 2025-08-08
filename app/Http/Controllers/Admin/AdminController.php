@@ -446,7 +446,7 @@ class AdminController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'color' => 'nullable|string|max:7',
-            'type' => 'required|in:mobile,broadband,fiber,satellite',
+            'type' => 'nullable|in:mobile,broadband,fiber,satellite',
             'coverage_percentage' => 'nullable|numeric|min:0|max:100',
             'service_areas' => 'nullable|array',
             'contact_info' => 'nullable|array',

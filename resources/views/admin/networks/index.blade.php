@@ -16,7 +16,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center">
                 <div class="p-2 bg-blue-100 rounded-lg">
@@ -53,17 +53,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center">
-                <div class="p-2 bg-orange-100 rounded-lg">
-                    <i class="fas fa-wifi text-orange-600 text-xl"></i>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-600">Broadband Networks</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $stats['broadband_networks'] }}</p>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <!-- Filters -->
@@ -86,7 +76,7 @@
                     </select>
                 </div>
 
-                <div>
+                {{-- <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type</label>
                     <select id="type" name="type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All Types</option>
@@ -95,7 +85,7 @@
                         <option value="fiber" {{ request('type') === 'fiber' ? 'selected' : '' }}>Fiber</option>
                         <option value="satellite" {{ request('type') === 'satellite' ? 'selected' : '' }}>Satellite</option>
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="flex items-end">
                     <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium">
@@ -115,7 +105,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Network</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coverage</th>
+                        {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coverage</th> --}}
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -136,7 +126,7 @@
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">{{ $network->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $network->full_name ?: 'N/A' }}</div>
+                                        {{-- <div class="text-sm text-gray-500">{{ $network->full_name ?: 'N/A' }}</div> --}}
                                     </div>
                                 </div>
                             </td>
@@ -152,43 +142,60 @@
                                     {{ ucfirst($network->type) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $network->coverage_display }}
-                            </td>
+                            </td> --}}
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
                                     {{ $network->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $network->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="{{ route('admin.networks.show', $network) }}" class="text-blue-600 hover:text-blue-900">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('admin.networks.edit', $network) }}" class="text-yellow-600 hover:text-yellow-900">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form method="POST" action="{{ route('admin.networks.toggle-status', $network) }}" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="text-gray-600 hover:text-gray-900"
-                                            onclick="return confirm('Toggle network status?')">
-                                        <i class="fas {{ $network->is_active ? 'fa-ban' : 'fa-check' }}"></i>
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.networks.destroy', $network) }}" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900"
-                                            onclick="return confirm('Are you sure you want to delete this network?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex items-center space-x-3">
+                                    <!-- View Button -->
+                                    <a href="{{ route('admin.networks.show', $network) }}"
+                                       class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md transition-colors"
+                                       title="View Details">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
+
+                                    <!-- Edit Button -->
+                                    <a href="{{ route('admin.networks.edit', $network) }}"
+                                       class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-md transition-colors"
+                                       title="Edit Network">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </a>
+
+                                    <!-- Toggle Status Button -->
+                                    <form method="POST" action="{{ route('admin.networks.toggle-status', $network) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="inline-flex items-center px-2 py-1 {{ $network->is_active ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }} rounded-md transition-colors"
+                                                onclick="return confirm('Are you sure you want to {{ $network->is_active ? 'deactivate' : 'activate' }} this network?')"
+                                                title="{{ $network->is_active ? 'Deactivate' : 'Activate' }} Network">
+                                            <i class="fas {{ $network->is_active ? 'fa-ban' : 'fa-check' }} text-sm"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Button -->
+                                    <form method="POST" action="{{ route('admin.networks.destroy', $network) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-md transition-colors"
+                                                onclick="return confirm('Are you sure you want to delete this network? This action cannot be undone.')"
+                                                title="Delete Network">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
                                 No networks found.
                             </td>
                         </tr>
