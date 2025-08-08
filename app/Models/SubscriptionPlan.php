@@ -44,7 +44,7 @@ class SubscriptionPlan extends Model
     }
 
     /**
-     * Scope to get plans ordered by sort order
+     * Scope for ordered plans
      */
     public function scopeOrdered($query)
     {

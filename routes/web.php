@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,27 @@ Route::middleware(['auth', 'user'])->group(function () {
 
 // Admin Dashboard Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
-    // We'll add more admin routes later
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Users Management
+    Route::get('/users', [AdminController::class, 'users'])->name('users');
+    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+    Route::patch('/users/{user}/toggle-status', [AdminController::class, 'updateUserStatus'])->name('users.toggle-status');
+    Route::post('/users/{user}/credit-wallet', [AdminController::class, 'creditWallet'])->name('users.credit-wallet');
+    Route::post('/users/{user}/debit-wallet', [AdminController::class, 'debitWallet'])->name('users.debit-wallet');
+
+    // Plans Management
+    Route::get('/plans', [AdminController::class, 'plans'])->name('plans');
+
+    // Subscriptions Management
+    Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
+
+    // Payments Management
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
+
+    // Reports
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+
+    // Settings
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
 });

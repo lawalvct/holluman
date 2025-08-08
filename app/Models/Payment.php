@@ -50,7 +50,7 @@ class Payment extends Model
      */
     public function scopeSuccessful($query)
     {
-        return $query->where('status', 'successful');
+        return $query->where('status', 'completed');
     }
 
     /**
@@ -82,7 +82,7 @@ class Payment extends Model
      */
     public function isSuccessful(): bool
     {
-        return $this->status === 'successful';
+        return $this->status === 'completed';
     }
 
     /**
