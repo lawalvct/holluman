@@ -38,8 +38,10 @@ Route::middleware('guest')->group(function () {
 // Logout (available to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Payment callback (accessible without authentication middleware for webhooks)
+// Payment callback routes (accessible without authentication middleware for webhooks)
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+Route::get('/payment/callback/nomba', [WalletController::class, 'handleNombaCallback'])->name('payment.callback.nomba');
+Route::post('/payment/webhook/nomba', [WalletController::class, 'handleNombaWebhook'])->name('payment.webhook.nomba');
 
 // User Dashboard Routes
 Route::middleware(['auth', 'user'])->group(function () {
