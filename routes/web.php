@@ -7,6 +7,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\SimController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +51,14 @@ Route::middleware(['auth', 'user'])->group(function () {
     // Subscription Routes
     Route::get('/plans', [SubscriptionController::class, 'index'])->name('plans');
 
+
+    // SIM Management Routes
     Route::get('/sims', [SimController::class, 'index'])->name('sims');
+    Route::get('/sims/create', [SimController::class, 'create'])->name('sims.create');
+    Route::post('/sims', [SimController::class, 'store'])->name('sims.store');
+    Route::get('/sims/{sim}/edit', [SimController::class, 'edit'])->name('sims.edit');
+    Route::put('/sims/{sim}', [SimController::class, 'update'])->name('sims.update');
+    Route::delete('/sims/{sim}', [SimController::class, 'destroy'])->name('sims.destroy');
 
     Route::get('/plans/{plan}', [SubscriptionController::class, 'show'])->name('plans.show');
     Route::post('/subscribe/{plan}', [SubscriptionController::class, 'subscribe'])->name('subscribe');

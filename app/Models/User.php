@@ -99,4 +99,12 @@ class User extends Authenticatable
             ->latest()
             ->first();
     }
+
+    /**
+     * User's sims relationship
+     */
+    public function sims()
+    {
+        return $this->hasMany(\App\Models\Sim::class);
+    }
 }
