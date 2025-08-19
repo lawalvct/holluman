@@ -32,7 +32,7 @@
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="text-xl font-bold text-blue-600">
-                                    ISP CRM
+                                    Holluman ISP
                                 </a>
                             </div>
 
@@ -48,6 +48,9 @@
                                     </a>
                                     <a href="{{ route('plans') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('plans*') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium">
                                         Plans
+                                    </a>
+                                    <a href="{{ route('sims') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('sims') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium">
+                                        SIM & Camera
                                     </a>
                                     <a href="{{ route('subscriptions.history') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('subscriptions*') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium">
                                         My Subscriptions

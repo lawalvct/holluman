@@ -49,6 +49,9 @@ Route::middleware(['auth', 'user'])->group(function () {
 
     // Subscription Routes
     Route::get('/plans', [SubscriptionController::class, 'index'])->name('plans');
+
+    Route::get('/sims', [SimController::class, 'index'])->name('sims');
+
     Route::get('/plans/{plan}', [SubscriptionController::class, 'show'])->name('plans.show');
     Route::post('/subscribe/{plan}', [SubscriptionController::class, 'subscribe'])->name('subscribe');
     Route::get('/subscriptions', [SubscriptionController::class, 'history'])->name('subscriptions.history');

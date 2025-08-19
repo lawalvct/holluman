@@ -229,11 +229,11 @@
 
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    <div class="space-y-2">
+                    {{-- <div class="space-y-2">
                         <label class="flex items-center">
                             <input type="radio" name="gateway" value="paystack" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
                             <span class="ml-2 text-sm text-gray-700">Paystack</span>
-                        </label>
+                        </label> --}}
                         <label class="flex items-center">
                             <input type="radio" name="gateway" value="nomba" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" {{ !$nombaConfigured ? 'disabled' : '' }}>
                             <span class="ml-2 text-sm {{ !$nombaConfigured ? 'text-gray-400' : 'text-gray-700' }}">

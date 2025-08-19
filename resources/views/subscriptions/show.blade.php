@@ -195,7 +195,7 @@
                                    pattern="[0-9]{11}"
                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <div class="absolute inset-y-0 left-0 flex items-center pl-4">
-                                
+
                             </div>
                         </div>
                         <div class="mt-2 flex items-start space-x-2">
@@ -240,7 +240,7 @@
                             </label>
 
                             <!-- Paystack Payment -->
-                            <label class="relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                            {{-- <label class="relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
                                 <input type="radio" name="payment_method" value="paystack"
                                        x-model="paymentMethod"
                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
@@ -251,7 +251,7 @@
                                 <div class="flex items-center space-x-2">
                                     <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjMDA5NTg4Ii8+Cjwvc3ZnPgo=" alt="Paystack" class="h-6 w-6">
                                 </div>
-                            </label>
+                            </label> --}}
 
                             <!-- Nomba Payment -->
                             <label class="relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -263,7 +263,7 @@
                                     <span class="block text-sm text-gray-500">Pay with Nomba payment gateway</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSIjRkY2QjAwIi8+Cjwvc3ZnPgo=" alt="Nomba" class="h-6 w-6">
+                                    
                                 </div>
                             </label>
                         </div>

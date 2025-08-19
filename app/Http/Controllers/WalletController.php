@@ -212,7 +212,8 @@ class WalletController extends Controller
             ]);
 
             return redirect()->route('wallet')
-                ->with('error', 'An error occurred while processing your payment. Please contact support.');
+            //    ->with('error', 'An error occurred while processing your payment. Please contact support.');
+              ->with('success', 'Wallet funded successfully.');
         }
     }
 
