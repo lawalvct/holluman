@@ -188,23 +188,20 @@
                             <i class="fas fa-phone mr-2 text-green-600"></i>Phone Number *
                         </label>
                         <div class="relative">
-                            <input type="tel" name="subscriber_phone" id="subscriber_phone"
-                                   value="{{ old('subscriber_phone', auth()->user()->phone) }}" required
-                                   placeholder="e.g., 08012345678"
-                                   maxlength="11"
-                                   pattern="[0-9]{11}"
-                                   class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select name="subscriber_phone" id="subscriber_phone" required
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select SIM Number</option>
+                                @foreach(auth()->user()->sims as $sim)
+                                    <option value="{{ $sim->sim_number }}" {{ old('subscriber_phone', auth()->user()->phone) == $sim->sim_number ? 'selected' : '' }}>
+                                        {{ $sim->sim_number }} -   {{ $sim->camera_location }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <div class="absolute inset-y-0 left-0 flex items-center pl-4">
 
                             </div>
                         </div>
-                        <div class="mt-2 flex items-start space-x-2">
-                            <i class="fas fa-info-circle text-blue-500 text-sm mt-0.5"></i>
-                            <div class="text-xs text-gray-600">
-                                <p>Enter the 11-digit phone number you want to subscribe this plan to.</p>
-                                <p class="mt-1">Format: 08012345678 (starts with 0)</p>
-                            </div>
-                        </div>
+
                         @error('subscriber_phone')
                             <p class="mt-1 text-sm text-red-600">
                                 <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
@@ -263,7 +260,7 @@
                                     <span class="block text-sm text-gray-500">Pay with Nomba payment gateway</span>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    
+
                                 </div>
                             </label>
                         </div>
