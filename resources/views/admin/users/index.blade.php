@@ -30,8 +30,8 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Total Users</h3>
-                    <p class="text-3xl font-bold text-blue-600">{{ number_format($stats['total_users']) }}</p>
+                    <h3 class="text-base font-medium text-gray-900">Total Users</h3>
+                    <p class="text-2xl font-bold text-blue-600">{{ number_format($stats['total_users']) }}</p>
                 </div>
             </div>
         </div>
@@ -46,8 +46,8 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Active Users</h3>
-                    <p class="text-3xl font-bold text-green-600">{{ number_format($stats['active_users']) }}</p>
+                    <h3 class="text-base font-medium text-gray-900">Active Users</h3>
+                    <p class="text-2xl font-bold text-green-600">{{ number_format($stats['active_users']) }}</p>
                 </div>
             </div>
         </div>
@@ -62,8 +62,8 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">With Active Subscription</h3>
-                    <p class="text-3xl font-bold text-purple-600">{{ number_format($stats['users_with_active_subscriptions']) }}</p>
+                    <h3 class="text-base font-medium text-gray-900">With Active Subscription</h3>
+                    <p class="text-2xl font-bold text-purple-600">{{ number_format($stats['users_with_active_subscriptions']) }}</p>
                 </div>
             </div>
         </div>
@@ -78,8 +78,8 @@
                     </div>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Total Wallet Balance</h3>
-                    <p class="text-3xl font-bold text-yellow-600">₦{{ number_format($stats['total_wallet_balance'], 2) }}</p>
+                    <h3 class="text-base font-medium text-gray-900">Total Wallet Balance</h3>
+                    <p class="text-2xl font-bold text-yellow-600">₦{{ number_format($stats['total_wallet_balance'], 2) }}</p>
                 </div>
             </div>
         </div>
@@ -96,12 +96,12 @@
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <input type="text" name="search" id="search" value="{{ request('search') }}"
                            placeholder="Name, email, or phone"
-                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
-                    <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <select name="status" id="status" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Users</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
@@ -110,7 +110,7 @@
 
                 <div>
                     <label for="subscription_status" class="block text-sm font-medium text-gray-700 mb-1">Subscription Status</label>
-                    <select name="subscription_status" id="subscription_status" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <select name="subscription_status" id="subscription_status" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All</option>
                         <option value="active" {{ request('subscription_status') === 'active' ? 'selected' : '' }}>Active</option>
                         <option value="expired" {{ request('subscription_status') === 'expired' ? 'selected' : '' }}>No Active Subscription</option>
@@ -128,9 +128,7 @@
 
     <!-- Users Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Users ({{ $users->total() }})</h3>
-        </div>
+      
 
         @if($users->count() > 0)
             <div class="overflow-x-auto">

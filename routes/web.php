@@ -82,7 +82,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/users/{user}/debit-wallet', [AdminController::class, 'debitWallet'])->name('users.debit-wallet');
 
     // Plans Management
-    Route::get('/plans', [AdminController::class, 'plans'])->name('plans');
+    Route::resource('plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
 
     // Subscriptions Management
     Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');

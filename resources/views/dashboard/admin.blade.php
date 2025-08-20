@@ -129,7 +129,7 @@
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900">Popular Plans</h3>
-                    <a href="{{ route('admin.plans') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Manage Plans</a>
+                    <a href="{{ route('admin.plans.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Manage Plans</a>
                 </div>
             </div>
             <div class="p-6">

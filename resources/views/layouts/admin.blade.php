@@ -58,7 +58,7 @@
                     </a>
 
                     <!-- Subscription Plans -->
-                    <a href="{{ route('admin.plans') }}"
+                    <a href="{{ route('admin.plans.index') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.plans*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-box mr-3"></i>
                         Plans
