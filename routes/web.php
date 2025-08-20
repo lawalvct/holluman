@@ -108,6 +108,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+     Route::post('/settings', [AdminController::class, 'settings'])->name('settings');
 
     // User Sims Management
     Route::get('/sims', [AdminController::class, 'sims'])->name('sims');

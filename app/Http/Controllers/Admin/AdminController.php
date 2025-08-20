@@ -445,11 +445,69 @@ class AdminController extends Controller
     }
 
     /**
-     * Display settings
+     * Display and update application settings
      */
-    public function settings()
+    public function settings(Request $request)
     {
-        return view('admin.settings.index');
+        $settings = \App\Models\Setting::getAppSettings();
+
+        if ($request->isMethod('post')) {
+            $validated = $request->validate([
+                'company_name' => 'required|string|max:255',
+                'company_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'company_address' => 'nullable|string|max:255',
+                'company_email' => 'nullable|email|max:255',
+                'nomba_account_id' => 'nullable|string|max:255',
+                'nomba_client_id' => 'nullable|string|max:255',
+                'nomba_private_key' => 'nullable|string|max:255',
+                'nomba_webhook_secret' => 'nullable|string|max:255',
+                'paystack_public_key' => 'nullable|string|max:255',
+                'paystack_secret_key' => 'nullable|string|max:255',
+                'paystack_enabled' => 'nullable|boolean',
+                'support_phone' => 'nullable|string|max:255',
+                'support_email' => 'nullable|email|max:255',
+            ]);
+
+            // Handle logo upload
+            if ($request->hasFile('company_logo')) {
+                $logo = $request->file('company_logo');
+                $logoName = 'logo_' . time() . '.' . $logo->getClientOriginalExtension();
+                $logo->move(public_path('images'), $logoName);
+                \App\Models\Setting::setValue('company_logo', $logoName, 'Company Logo');
+            }
+
+            // Save all other settings
+            $fields = [
+                'company_name', 'company_address', 'company_email',
+                'nomba_account_id', 'nomba_client_id', 'nomba_private_key', 'nomba_webhook_secret',
+                'paystack_public_key', 'paystack_secret_key', 'support_phone', 'support_email'
+            ];
+            foreach ($fields as $field) {
+                \App\Models\Setting::setValue($field, $request->input($field));
+            }
+            \App\Models\Setting::setValue('paystack_enabled', $request->has('paystack_enabled') ? 1 : 0);
+
+            return redirect()->route('admin.settings')->with('success', 'Settings updated successfully.');
+        }
+
+        // Prepare settings for form
+        $formSettings = [
+            'company_name' => $settings['company_name']->value ?? '',
+            'company_logo' => $settings['company_logo']->value ?? '',
+            'company_address' => $settings['company_address']->value ?? '',
+            'company_email' => $settings['company_email']->value ?? '',
+            'nomba_account_id' => $settings['nomba_account_id']->value ?? '',
+            'nomba_client_id' => $settings['nomba_client_id']->value ?? '',
+            'nomba_private_key' => $settings['nomba_private_key']->value ?? '',
+            'nomba_webhook_secret' => $settings['nomba_webhook_secret']->value ?? '',
+            'paystack_public_key' => $settings['paystack_public_key']->value ?? '',
+            'paystack_secret_key' => $settings['paystack_secret_key']->value ?? '',
+            'paystack_enabled' => $settings['paystack_enabled']->value ?? 0,
+            'support_phone' => $settings['support_phone']->value ?? '',
+            'support_email' => $settings['support_email']->value ?? '',
+        ];
+
+        return view('admin.settings.index', ['settings' => $formSettings]);
     }
 
     /**
