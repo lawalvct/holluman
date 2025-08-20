@@ -545,4 +545,34 @@ class AdminController extends Controller
 
         return redirect()->route('admin.networks')->with('success', 'Network deleted successfully.');
     }
+
+    /**
+     * Show a single subscription
+     */
+    public function showSubscription(Subscription $subscription)
+    {
+        $subscription->load(['user', 'subscriptionPlan']);
+        return view('admin.subscriptions.show', compact('subscription'));
+    }
+
+    /**
+     * Update subscription status
+     */
+    public function updateSubscriptionStatus(Request $request, Subscription $subscription)
+    {
+        $request->validate([
+            'status' => 'required|in:active,expired,cancelled'
+        ]);
+        $subscription->update(['status' => $request->status]);
+        return back()->with('success', 'Subscription status updated.');
+    }
+
+    /**
+     * Delete a subscription
+     */
+    public function destroySubscription(Subscription $subscription)
+    {
+        $subscription->delete();
+        return redirect()->route('admin.subscriptions')->with('success', 'Subscription deleted.');
+    }
 }

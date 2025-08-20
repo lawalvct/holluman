@@ -86,6 +86,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Subscriptions Management
     Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
+    Route::get('/subscriptions/{subscription}', [AdminController::class, 'showSubscription'])->name('subscriptions.show');
+    Route::patch('/subscriptions/{subscription}/status', [AdminController::class, 'updateSubscriptionStatus'])->name('subscriptions.update-status');
+    Route::delete('/subscriptions/{subscription}', [AdminController::class, 'destroySubscription'])->name('subscriptions.destroy');
 
     // Payments Management
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
