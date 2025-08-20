@@ -108,4 +108,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+
+    // User Sims Management
+    Route::get('/sims', [AdminController::class, 'sims'])->name('sims');
+    Route::get('/sims/{sim}', [AdminController::class, 'showSim'])->name('sims.show');
+    Route::get('/sims/{sim}/edit', [AdminController::class, 'editSim'])->name('sims.edit');
+    Route::put('/sims/{sim}', [AdminController::class, 'updateSim'])->name('sims.update');
+    Route::delete('/sims/{sim}', [AdminController::class, 'destroySim'])->name('sims.destroy');
 });

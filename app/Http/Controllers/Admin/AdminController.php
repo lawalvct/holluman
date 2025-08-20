@@ -17,6 +17,75 @@ use Illuminate\Support\Facades\Storage;
 class AdminController extends Controller
 {
     /**
+     * Display all user SIMs for admin management
+     */
+    public function sims(Request $request)
+    {
+        $query = \App\Models\Sim::with('user');
+
+        // Search by sim_number or camera_name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('sim_number', 'like', "%$search%")
+                  ->orWhere('camera_name', 'like', "%$search%")
+                  ->orWhereHas('user', function($uq) use ($search) {
+                      $uq->where('name', 'like', "%$search%")
+                         ->orWhere('email', 'like', "%$search%")
+                         ->orWhere('id', $search);
+                  });
+            });
+        }
+
+        $sims = $query->latest()->paginate(15);
+        $stats = [
+            'total_sims' => \App\Models\Sim::count(),
+            'unique_users' => \App\Models\Sim::distinct('user_id')->count('user_id'),
+        ];
+        return view('admin.sims.index', compact('sims', 'stats'));
+    }
+
+    /**
+     * Show a single SIM details
+     */
+    public function showSim(\App\Models\Sim $sim)
+    {
+        $sim->load('user');
+        return view('admin.sims.show', compact('sim'));
+    }
+
+    /**
+     * Show SIM edit form
+     */
+    public function editSim(\App\Models\Sim $sim)
+    {
+        $sim->load('user');
+        return view('admin.sims.edit', compact('sim'));
+    }
+
+    /**
+     * Update SIM details
+     */
+    public function updateSim(Request $request, \App\Models\Sim $sim)
+    {
+        $request->validate([
+            'sim_number' => 'required|string|unique:sims,sim_number,' . $sim->id,
+            'camera_name' => 'required|string|max:255',
+            'camera_location' => 'required|string|max:255',
+        ]);
+        $sim->update($request->only(['sim_number', 'camera_name', 'camera_location']));
+        return redirect()->route('admin.sims')->with('success', 'SIM updated successfully.');
+    }
+
+    /**
+     * Delete a SIM
+     */
+    public function destroySim(\App\Models\Sim $sim)
+    {
+        $sim->delete();
+        return redirect()->route('admin.sims')->with('success', 'SIM deleted successfully.');
+    }
+    /**
      * Display admin dashboard
      */
     public function dashboard()

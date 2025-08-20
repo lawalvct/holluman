@@ -56,6 +56,9 @@
                         <i class="fas fa-users mr-3"></i>
                         Users
                     </a>
+                        <a href="{{ route('admin.sims') }}" class="{{ request()->routeIs('admin.sims*') ? 'bg-primary-200' : '' }} flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-primary rounded-md">
+                            <span class="inline-block w-5"><i class="fas fa-sim-card"></i></span> User Sims
+                        </a>
 
                     <!-- Subscription Plans -->
                     <a href="{{ route('admin.plans.index') }}"
