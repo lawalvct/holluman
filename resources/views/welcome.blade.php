@@ -1,187 +1,226 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veasat - Stay Connected</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --primary-hover: #1D4ED8;
+        }
+        .bg-primary { background-color: var(--primary-color); }
+        .text-primary { color: var(--primary-color); }
+        .border-primary { border-color: var(--primary-color); }
+        .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
 
-@section('title', 'Welcome')
-
-@section('content')
-<div class="bg-white">
-    <!-- Hero Section -->
-    <div class="relative bg-blue-600">
-        <div class="absolute inset-0">
-            <div class="bg-blue-600 h-full w-full" aria-hidden="true"></div>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0">
+                    <a href="/" class="flex items-center text-2xl font-bold text-primary">
+                        <img src="{{ asset('images/logo.png') }}" alt="Veasat Logo" class="h-8">
+                        <span class="ml-2">Veasat</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#features" class="text-gray-700 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Features</a>
+                        <a href="#plans" class="text-gray-700 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Plans</a>
+                        <a href="#contact" class="text-gray-700 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                        @guest
+                            <a href="{{ route('login') }}" class="bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-2 rounded-md text-sm font-medium">Login</a>
+                            <a href="{{ route('register') }}" class="bg-primary text-white hover:bg-primary-hover px-3 py-2 rounded-md text-sm font-medium">Get Started</a>
+                        @else
+                             <a href="{{ route('dashboard') }}" class="bg-primary text-white hover:bg-primary-hover px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        @endguest
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
-            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                High-Speed Internet
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-white">
+        <div class="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <span class="block">Seamless Internet for Your</span>
+                <span class="block text-primary">Camera Phone</span>
             </h1>
-            <p class="mt-6 text-xl text-blue-100 max-w-3xl">
-                Experience lightning-fast internet with our reliable ISP services. Choose from our flexible plans designed for every need.
+            <p class="mt-4 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                Stay connected wherever you go. Subscribe to high-speed internet directly on your Nigerian camera phone number. No extra hardware needed.
             </p>
-            <div class="mt-10 space-x-4">
-                @guest
-                    <a href="{{ route('register') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+            <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+                <div class="rounded-md shadow">
+                    <a href="{{ route('register') }}" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-hover md:py-4 md:text-lg md:px-10">
                         Get Started
                     </a>
-                    <a href="{{ route('login') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-400">
-                        Sign In
-                    </a>
-                @else
-                    <a href="{{ route('dashboard') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
-                        Go to Dashboard
-                    </a>
-                    <a href="{{ route('plans') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-500 hover:bg-blue-400">
-                        View Plans
-                    </a>
-                @endguest
+                </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Features Section -->
-    <div class="py-16 bg-gray-50">
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <h2 class="text-3xl font-extrabold text-gray-900">
-                    Why Choose Our Service?
-                </h2>
-                <p class="mt-4 text-lg text-gray-600">
-                    We provide reliable, fast, and affordable internet services
+            <div class="lg:text-center">
+                <h2 class="text-base text-primary font-semibold tracking-wide uppercase">How It Works</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Get Connected in 3 Simple Steps
                 </p>
             </div>
-
-            <div class="mt-16">
+            <div class="mt-12">
                 <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                    <!-- Feature 1 -->
                     <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white mx-auto">
+                           1
                         </div>
-                        <h3 class="mt-6 text-lg font-medium text-gray-900">Lightning Fast</h3>
+                        <h3 class="mt-6 text-lg font-medium text-gray-900">Choose a Plan</h3>
                         <p class="mt-2 text-base text-gray-500">
-                            High-speed internet up to 100 Mbps for seamless browsing and streaming.
+                            Select the data plan that best fits your needs.
                         </p>
                     </div>
-
-                    <!-- Feature 2 -->
                     <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                            </svg>
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white mx-auto">
+                            2
                         </div>
-                        <h3 class="mt-6 text-lg font-medium text-gray-900">Affordable Plans</h3>
+                        <h3 class="mt-6 text-lg font-medium text-gray-900">Enter Phone Number</h3>
                         <p class="mt-2 text-base text-gray-500">
-                            Flexible pricing plans starting from ₦5,000 per month.
+                            Provide your camera-enabled phone number for activation.
                         </p>
                     </div>
-
-                    <!-- Feature 3 -->
                     <div class="text-center">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mx-auto">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.5a9.5 9.5 0 11.001 19A9.5 9.5 0 0112 2.5z" />
-                            </svg>
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white mx-auto">
+                            3
                         </div>
-                        <h3 class="mt-6 text-lg font-medium text-gray-900">24/7 Support</h3>
+                        <h3 class="mt-6 text-lg font-medium text-gray-900">Enjoy High-Speed Internet</h3>
                         <p class="mt-2 text-base text-gray-500">
-                            Round-the-clock customer support to help you anytime.
+                            Get instant access to our reliable network.
                         </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Plans Preview -->
-    @if(isset($plans) && $plans->count() > 0)
-    <div class="py-16 bg-white">
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <h2 class="text-3xl font-extrabold text-gray-900">
-                    Our Internet Plans
-                </h2>
-                <p class="mt-4 text-lg text-gray-600">
-                    Choose the perfect plan for your needs
+            <div class="lg:text-center">
+                <h2 class="text-base text-primary font-semibold tracking-wide uppercase">Features</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                    Everything You Need to Stay Online
                 </p>
             </div>
 
+            <div class="mt-10">
+                <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+                    <div class="relative">
+                        <dt>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Instant Activation</p>
+                        </dt>
+                        <dd class="mt-2 ml-16 text-base text-gray-500">
+                            Get your internet activated in minutes. Just subscribe with your phone number and you're ready to go.
+                        </dd>
+                    </div>
+                    <div class="relative">
+                        <dt>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Affordable Data Plans</p>
+                        </dt>
+                        <dd class="mt-2 ml-16 text-base text-gray-500">
+                            Choose from a variety of budget-friendly plans that suit your data needs and wallet.
+                        </dd>
+                    </div>
+                    <div class="relative">
+                        <dt>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Nationwide Coverage</p>
+                        </dt>
+                        <dd class="mt-2 ml-16 text-base text-gray-500">
+                            Enjoy reliable internet access across Nigeria, whether you're in the city or a rural area.
+                        </dd>
+                    </div>
+                    <div class="relative">
+                        <dt>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">24/7 Support</p>
+                        </dt>
+                        <dd class="mt-2 ml-16 text-base text-gray-500">
+                            Our dedicated support team is always available to help you with any issues or questions.
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section id="plans" class="py-20 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-extrabold text-gray-900">Choose Your Plan</h2>
+                <p class="mt-4 text-lg text-gray-600">Simple, transparent pricing.</p>
+            </div>
+            @if(isset($plans) && $plans->count() > 0)
             <div class="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($plans as $plan)
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-200">
+                <div class="relative border @if($plan->sort_order == 2) border-primary @else border-gray-200 @endif rounded-lg shadow-sm divide-y divide-gray-200">
+                    @if($plan->sort_order == 2)
+                        <div class="absolute top-0 right-0 -mt-3 -mr-3">
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary text-white">
+                                Most Popular
+                            </span>
+                        </div>
+                    @endif
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-900">{{ $plan->name }}</h3>
-                        <p class="mt-2 text-sm text-gray-500">{{ $plan->description }}</p>
-                        <p class="mt-4">
-                            <span class="text-3xl font-bold text-gray-900">{{ $plan->formatted_price }}</span>
+                        <h3 class="text-2xl leading-6 font-medium text-gray-900">{{ $plan->name }}</h3>
+                        <p class="mt-4 text-sm text-gray-500">{{ $plan->description }}</p>
+                        <p class="mt-8">
+                            <span class="text-4xl font-extrabold text-gray-900">{{ $plan->formatted_price }}</span>
                             <span class="text-base font-medium text-gray-500">/month</span>
                         </p>
-                        <ul class="mt-6 space-y-2">
-                            <li class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-sm text-gray-600">{{ $plan->speed }} Speed</span>
-                            </li>
-                            <li class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                                <span class="text-sm text-gray-600">{{ $plan->data_limit }} Data</span>
-                            </li>
-                            @if($plan->features)
-                                @foreach($plan->features as $feature)
-                                <li class="flex items-center">
-                                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                    <span class="text-sm text-gray-600">{{ $feature }}</span>
-                                </li>
-                                @endforeach
-                            @endif
-                        </ul>
-                        <div class="mt-6">
-                            @guest
-                                <a href="{{ route('register') }}" class="w-full bg-blue-600 border border-transparent rounded-md py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Get Started
-                                </a>
-                            @else
-                                <a href="{{ route('plans.show', $plan) }}" class="w-full bg-blue-600 border border-transparent rounded-md py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    Subscribe Now
-                                </a>
-                            @endguest
-                        </div>
+                        <a href="{{ route('register') }}" class="mt-8 block w-full bg-primary border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-primary-hover">Get Started</a>
                     </div>
                 </div>
                 @endforeach
             </div>
+            @endif
         </div>
-    </div>
-    @endif
+    </section>
 
-    <!-- CTA Section -->
-    <div class="bg-blue-600">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-            <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-                <span class="block">Ready to get started?</span>
-                <span class="block text-blue-200">Join thousands of satisfied customers.</span>
-            </h2>
-            <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-                <div class="inline-flex rounded-md shadow">
-                    @guest
-                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
-                            Sign Up Now
-                        </a>
-                    @else
-                        <a href="{{ route('plans') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
-                            View All Plans
-                        </a>
-                    @endguest
+    <!-- Contact Section -->
+    <footer id="contact" class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold">Veasat</h3>
+                    <p class="mt-2 text-gray-400">Your partner in connectivity.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">Contact Us</h3>
+                    <ul class="mt-2 space-y-2">
+                        <li>Email: support@veasat.com</li>
+                        <li>Phone: +234 800 123 4567</li>
+                        <li>Address: 123 Innovation Drive, Ikeja, Lagos, Nigeria</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">Follow Us</h3>
+                    <div class="flex space-x-4 mt-2">
+                        <a href="#" class="text-gray-400 hover:text-white">Twitter</a>
+                        <a href="#" class="text-gray-400 hover:text-white">Facebook</a>
+                        <a href="#" class="text-gray-400 hover:text-white">Instagram</a>
+                    </div>
                 </div>
             </div>
+            <div class="mt-8 border-t border-gray-700 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Veasat. All rights reserved.</p>
+            </div>
         </div>
-    </div>
-</div>
-@endsection
+    </footer>
 
-   
+</body>
+</html>
