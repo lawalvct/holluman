@@ -21,15 +21,48 @@ class SimController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'sim_number' => 'required|unique:sims,sim_number',
-            'camera_name' => 'required|string|max:255',
-            'camera_location' => 'required|string|max:255',
-        ]);
+        try {
+            $request->validate([
+                'sim_number' => 'required|string|unique:sims,sim_number',
+                'camera_name' => 'required|string|max:255',
+                'camera_location' => 'required|string|max:255',
+            ]);
 
-        Auth::user()->sims()->create($request->only(['sim_number', 'camera_name', 'camera_location']));
+            $sim = Sim::create([
+                'user_id' => auth()->id(),
+                'sim_number' => $request->sim_number,
+                'camera_name' => $request->camera_name,
+                'camera_location' => $request->camera_location,
+            ]);
 
-        return redirect()->route('sims')->with('success', 'SIM added successfully.');
+            // Check if request is AJAX (for modal submission)
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'SIM added successfully.',
+                    'sim' => $sim
+                ]);
+            }
+
+            return redirect()->route('sims')->with('success', 'SIM added successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed.',
+                    'errors' => $e->validator->errors()
+                ], 422);
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while adding the SIM.'
+                ], 500);
+            }
+            throw $e;
+        }
     }
 
     public function edit(Sim $sim)

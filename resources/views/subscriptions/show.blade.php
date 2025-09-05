@@ -193,13 +193,18 @@
                                 <option value="">Select SIM Number</option>
                                 @foreach(auth()->user()->sims as $sim)
                                     <option value="{{ $sim->sim_number }}" {{ old('subscriber_phone', auth()->user()->phone) == $sim->sim_number ? 'selected' : '' }}>
-                                        {{ $sim->sim_number }} -   {{ $sim->camera_location }}
+                                        {{ $sim->sim_number }} - {{ $sim->camera_location }}
                                     </option>
                                 @endforeach
                             </select>
                             <div class="absolute inset-y-0 left-0 flex items-center pl-4">
 
                             </div>
+                        </div>
+                        <div class="mt-2">
+                            <button type="button" onclick="openAddSimModal()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                <i class="fas fa-plus mr-1"></i>Add New SIM
+                            </button>
                         </div>
 
                         @error('subscriber_phone')
@@ -288,6 +293,182 @@
                         Your subscription will automatically activate upon successful payment.
                     </div>
                 </form>
+
+                <!-- Add SIM Modal -->
+                <div id="addSimModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div class="mt-3">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Add New SIM</h3>
+                                <button onclick="closeAddSimModal()" class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <form id="addSimForm" onsubmit="submitNewSim(event)">
+                                @csrf
+                                <div class="mb-4">
+                                    <label for="modal_sim_number" class="block text-sm font-medium text-gray-700 mb-2">SIM Number *</label>
+                                    <input type="text" id="modal_sim_number" name="sim_number" required
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <div id="sim_number_error" class="text-red-600 text-sm mt-1 hidden"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="modal_camera_name" class="block text-sm font-medium text-gray-700 mb-2">Camera Name *</label>
+                                    <input type="text" id="modal_camera_name" name="camera_name" required
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <div id="camera_name_error" class="text-red-600 text-sm mt-1 hidden"></div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="modal_camera_location" class="block text-sm font-medium text-gray-700 mb-2">Camera Location *</label>
+                                    <input type="text" id="modal_camera_location" name="camera_location" required
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <div id="camera_location_error" class="text-red-600 text-sm mt-1 hidden"></div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="submit" id="submitSimBtn" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <span id="submitText">Add SIM</span>
+                                        <span id="submitLoader" class="hidden">
+                                            <i class="fas fa-spinner fa-spin mr-2"></i>Adding...
+                                        </span>
+                                    </button>
+                                    <button type="button" onclick="closeAddSimModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                function openAddSimModal() {
+                    document.getElementById('addSimModal').classList.remove('hidden');
+                    document.getElementById('modal_sim_number').focus();
+                }
+
+                function closeAddSimModal() {
+                    document.getElementById('addSimModal').classList.add('hidden');
+                    // Clear form
+                    document.getElementById('addSimForm').reset();
+                    // Clear errors
+                    ['sim_number_error', 'camera_name_error', 'camera_location_error'].forEach(id => {
+                        document.getElementById(id).classList.add('hidden');
+                    });
+                }
+
+                async function submitNewSim(event) {
+                    event.preventDefault();
+
+                    const submitBtn = document.getElementById('submitSimBtn');
+                    const submitText = document.getElementById('submitText');
+                    const submitLoader = document.getElementById('submitLoader');
+
+                    // Show loading
+                    submitBtn.disabled = true;
+                    submitText.classList.add('hidden');
+                    submitLoader.classList.remove('hidden');
+
+                    // Clear previous errors
+                    ['sim_number_error', 'camera_name_error', 'camera_location_error'].forEach(id => {
+                        document.getElementById(id).classList.add('hidden');
+                    });
+
+                    const formData = new FormData(event.target);
+
+                    try {
+                        const response = await fetch('{{ route("sims.store") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            // Add new option to select
+                            const select = document.getElementById('subscriber_phone');
+                            const newOption = document.createElement('option');
+                            newOption.value = data.sim.sim_number;
+                            newOption.textContent = `${data.sim.sim_number} - ${data.sim.camera_location}`;
+                            newOption.selected = true;
+                            select.appendChild(newOption);
+
+                            // Close modal
+                            closeAddSimModal();
+
+                            // Show success message
+                            showSuccessMessage('SIM added successfully!');
+                        } else {
+                            // Handle validation errors
+                            if (data.errors) {
+                                Object.keys(data.errors).forEach(field => {
+                                    const errorDiv = document.getElementById(`${field}_error`);
+                                    if (errorDiv) {
+                                        errorDiv.textContent = data.errors[field][0];
+                                        errorDiv.classList.remove('hidden');
+                                    }
+                                });
+                            } else {
+                                showErrorMessage(data.message || 'An error occurred. Please try again.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showErrorMessage('Network error. Please check your connection and try again.');
+                    } finally {
+                        // Hide loading
+                        submitBtn.disabled = false;
+                        submitText.classList.remove('hidden');
+                        submitLoader.classList.add('hidden');
+                    }
+                }
+
+                function showSuccessMessage(message) {
+                    // Create and show success notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 3000);
+                }
+
+                function showErrorMessage(message) {
+                    // Create and show error notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+
+                    // Remove after 5 seconds
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 5000);
+                }
+
+                // Close modal when clicking outside
+                document.getElementById('addSimModal').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeAddSimModal();
+                    }
+                });
+                </script>
 
                 <!-- Fund Wallet Link -->
                 @if(!$userWallet->hasSufficientBalance($plan->price))

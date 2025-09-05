@@ -42,6 +42,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // Payment callback routes (accessible without authentication middleware for webhooks)
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 Route::get('/payment/callback/nomba', [WalletController::class, 'handleNombaCallback'])->name('payment.callback.nomba');
+Route::get('/payment/callback/nomba/subscription', [SubscriptionController::class, 'handleNombaCallback'])->name('payment.callback.nomba.subscription');
 Route::post('/payment/webhook/nomba', [WalletController::class, 'handleNombaWebhook'])->name('payment.webhook.nomba');
 
 // User Dashboard Routes

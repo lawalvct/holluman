@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class SubscriptionController extends Controller
@@ -99,6 +100,7 @@ class SubscriptionController extends Controller
                 return redirect()->route('subscriptions.history')->with('success', 'Subscription activated successfully!');
 
             } else {
+
                 // Pay with payment gateway (Paystack/Nomba)
                 $subscription = $this->createSubscription($user, $plan, $request->payment_method, $request->network_id, $request->subscriber_phone);
 
@@ -190,6 +192,112 @@ class SubscriptionController extends Controller
     }
 
     /**
+     * Handle Nomba payment callback for subscriptions
+     */
+    public function handleNombaCallback(Request $request)
+    {
+        try {
+            $reference = $request->query('reference') ?? $request->input('orderId');
+
+            if (!$reference) {
+                Log::warning('Nomba subscription callback received without reference');
+                return redirect()->route('plans')
+                    ->with('error', 'Payment verification failed: No reference provided');
+            }
+
+            // Find payment by reference
+            $payment = Payment::where('reference', $reference)
+                ->orWhere('gateway_reference', $reference)
+                ->where('type', 'subscription')
+                ->first();
+
+            if (!$payment) {
+                Log::warning('Subscription payment not found for reference', ['reference' => $reference]);
+                return redirect()->route('plans')
+                    ->with('error', 'Payment not found');
+            }
+
+            // Verify payment with Nomba
+            $nombaHelper = new \App\Helpers\NombaPyamentHelper();
+            $verificationResult = $nombaHelper->verifyPaymentByReference($reference);
+
+            if ($verificationResult['success'] && $verificationResult['payment_status'] === 'successful') {
+                // Process successful subscription payment
+                $this->processSuccessfulSubscriptionPayment($payment, $verificationResult['data']);
+
+                return redirect()->route('subscriptions.history')
+                    ->with('success', 'Subscription activated successfully! Payment of ₦' . number_format($payment->amount, 2) . ' completed.');
+            } else {
+                // Handle failed payment
+                $payment->update([
+                    'status' => 'failed',
+                    'gateway_response' => json_encode($verificationResult)
+                ]);
+
+                Log::info('Subscription payment verification failed', [
+                    'payment_id' => $payment->id,
+                    'reference' => $reference,
+                    'verification_result' => $verificationResult
+                ]);
+
+                return redirect()->route('plans')
+                    ->with('error', 'Payment verification failed. Please try again or contact support.');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Nomba subscription callback processing exception', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all()
+            ]);
+
+            return redirect()->route('plans')
+                ->with('error', 'An error occurred while processing your payment. Please contact support.');
+        }
+    }
+
+    /**
+     * Process successful subscription payment
+     */
+    private function processSuccessfulSubscriptionPayment($payment, $gatewayData = null)
+    {
+        DB::beginTransaction();
+        try {
+            // Update payment status
+            $payment->update([
+                'status' => 'completed',
+                'gateway_response' => json_encode($gatewayData),
+                'paid_at' => now()
+            ]);
+
+            // Find and activate the subscription
+            $subscription = Subscription::find($payment->subscription_id);
+            if ($subscription) {
+                $subscription->update([
+                    'status' => 'active',
+                    'payment_reference' => $payment->reference,
+                ]);
+            }
+
+            DB::commit();
+
+            Log::info('Subscription payment completed successfully', [
+                'payment_id' => $payment->id,
+                'subscription_id' => $subscription->id ?? null,
+                'user_id' => $payment->user_id,
+                'amount' => $payment->amount
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Failed to process successful subscription payment', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Initialize Paystack payment
      */
     private function initializePaystackPayment($payment)
@@ -204,8 +312,46 @@ class SubscriptionController extends Controller
      */
     private function initializeNombaPayment($payment)
     {
-        // For now, we'll create a simple form that simulates payment
-        // In production, you would integrate with actual Nomba API
-        return view('payments.nomba', compact('payment'));
+        try {
+            $nombaHelper = new \App\Helpers\NombaPyamentHelper();
+
+            // Prepare payment data
+            $paymentData = [
+                'amount' => $payment->amount,
+                'currency' => $payment->currency,
+                'email' => $payment->user->email,
+                'callback_url' => route('payment.callback.nomba.subscription'),
+                'reference' => $payment->reference
+            ];
+
+            // Initiate payment with Nomba
+            $result = $nombaHelper->initiatePayment($paymentData);
+
+            if ($result['success']) {
+                // Update payment record with gateway reference
+                $payment->update([
+                    'gateway_reference' => $result['data']['reference'],
+                    'gateway_response' => json_encode($result['data'])
+                ]);
+
+                // Redirect to Nomba checkout
+                return redirect($result['data']['checkout_url']);
+            } else {
+                Log::error('Nomba subscription payment initialization failed', [
+                    'payment_id' => $payment->id,
+                    'error' => $result['message']
+                ]);
+
+                return back()->with('error', 'Payment initialization failed: ' . $result['message']);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Nomba subscription payment initialization exception', [
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'An error occurred while initializing payment. Please try again.');
+        }
     }
 }
