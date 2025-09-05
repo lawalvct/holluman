@@ -117,4 +117,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/sims/{sim}/edit', [AdminController::class, 'editSim'])->name('sims.edit');
     Route::put('/sims/{sim}', [AdminController::class, 'updateSim'])->name('sims.update');
     Route::delete('/sims/{sim}', [AdminController::class, 'destroySim'])->name('sims.destroy');
+
+    // Test N3tdata API
+    Route::get('/test-n3tdata', function() {
+        $helper = new \App\Helpers\N3tDataHelper();
+        $result = $helper->getBalance();
+        return response()->json($result);
+    })->name('test.n3tdata');
 });

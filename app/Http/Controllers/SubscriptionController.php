@@ -96,8 +96,18 @@ class SubscriptionController extends Controller
                     'payment_reference' => 'WALLET_' . time(),
                 ]);
 
+                // Activate actual data subscription with N3tdata
+                $dataActivationResult = $this->activateDataSubscription($subscription);
+
                 DB::commit();
-                return redirect()->route('subscriptions.history')->with('success', 'Subscription activated successfully!');
+
+                if ($dataActivationResult['success']) {
+                    return redirect()->route('subscriptions.history')
+                        ->with('success', 'Subscription activated successfully! ' . $dataActivationResult['message']);
+                } else {
+                    return redirect()->route('subscriptions.history')
+                        ->with('warning', 'Subscription created but data activation failed: ' . $dataActivationResult['message'] . '. Please contact support.');
+                }
 
             } else {
 
@@ -222,11 +232,16 @@ class SubscriptionController extends Controller
             $verificationResult = $nombaHelper->verifyPaymentByReference($reference);
 
             if ($verificationResult['success'] && $verificationResult['payment_status'] === 'successful') {
-                // Process successful subscription payment
-                $this->processSuccessfulSubscriptionPayment($payment, $verificationResult['data']);
+                // Process successful subscription payment and activate data subscription
+                $subscriptionResult = $this->processSuccessfulSubscriptionPayment($payment, $verificationResult['data']);
 
-                return redirect()->route('subscriptions.history')
-                    ->with('success', 'Subscription activated successfully! Payment of ₦' . number_format($payment->amount, 2) . ' completed.');
+                if ($subscriptionResult['success']) {
+                    return redirect()->route('subscriptions.history')
+                        ->with('success', 'Subscription activated successfully! Payment of ₦' . number_format($payment->amount, 2) . ' completed. ' . $subscriptionResult['message']);
+                } else {
+                    return redirect()->route('subscriptions.history')
+                        ->with('warning', 'Payment successful but data activation failed: ' . $subscriptionResult['message'] . '. Please contact support.');
+                }
             } else {
                 // Handle failed payment
                 $payment->update([
@@ -271,21 +286,29 @@ class SubscriptionController extends Controller
 
             // Find and activate the subscription
             $subscription = Subscription::find($payment->subscription_id);
-            if ($subscription) {
-                $subscription->update([
-                    'status' => 'active',
-                    'payment_reference' => $payment->reference,
-                ]);
+            if (!$subscription) {
+                throw new \Exception('Subscription not found');
             }
+
+            $subscription->update([
+                'status' => 'active',
+                'payment_reference' => $payment->reference,
+            ]);
+
+            // Activate actual data subscription with N3tdata
+            $dataActivationResult = $this->activateDataSubscription($subscription);
 
             DB::commit();
 
             Log::info('Subscription payment completed successfully', [
                 'payment_id' => $payment->id,
-                'subscription_id' => $subscription->id ?? null,
+                'subscription_id' => $subscription->id,
                 'user_id' => $payment->user_id,
-                'amount' => $payment->amount
+                'amount' => $payment->amount,
+                'data_activation' => $dataActivationResult
             ]);
+
+            return $dataActivationResult;
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -293,7 +316,82 @@ class SubscriptionController extends Controller
                 'payment_id' => $payment->id,
                 'error' => $e->getMessage()
             ]);
-            throw $e;
+
+            return [
+                'success' => false,
+                'message' => 'Payment processed but subscription activation failed: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Activate data subscription using N3tdata API
+     */
+    private function activateDataSubscription($subscription)
+    {
+        try {
+            $n3tDataHelper = new \App\Helpers\N3tDataHelper();
+
+            // Map local network ID to N3tdata network ID
+            $n3tNetworkId = $n3tDataHelper->mapNetworkId($subscription->network_id);
+
+            // Map subscription plan to N3tdata data plan ID
+            $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan);
+
+            // Generate unique request ID
+            $requestId = 'SUB_' . $subscription->id . '_' . time();
+
+            // Purchase data subscription
+            $result = $n3tDataHelper->purchaseDataSubscription(
+                $n3tNetworkId,
+                $subscription->subscriber_phone,
+                $dataPlanId,
+                $requestId
+            );
+
+            if ($result['success']) {
+                // Update subscription with N3tdata response
+                $subscription->update([
+                    'n3tdata_request_id' => $requestId,
+                    'n3tdata_response' => json_encode($result['data']),
+                    'data_activated_at' => now()
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => 'Data subscription activated successfully on ' . ($result['data']['network'] ?? 'network')
+                ];
+            } else {
+                // Log the failure but don't fail the entire process
+                Log::error('N3tdata activation failed for subscription', [
+                    'subscription_id' => $subscription->id,
+                    'phone' => $subscription->subscriber_phone,
+                    'error' => $result['message']
+                ]);
+
+                // Update subscription with failure info
+                $subscription->update([
+                    'n3tdata_request_id' => $requestId,
+                    'n3tdata_response' => json_encode($result),
+                    'data_activation_failed_at' => now()
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Data activation failed'
+                ];
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Exception during data subscription activation', [
+                'subscription_id' => $subscription->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Technical error during data activation: ' . $e->getMessage()
+            ];
         }
     }
 

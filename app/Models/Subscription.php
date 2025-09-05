@@ -23,14 +23,21 @@ class Subscription extends Model
         'status',
         'auto_renew',
         'plan_snapshot',
+        'n3tdata_request_id',
+        'n3tdata_response',
+        'data_activated_at',
+        'data_activation_failed_at',
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'plan_snapshot' => 'array',
+        'n3tdata_response' => 'array',
         'auto_renew' => 'boolean',
         'amount_paid' => 'decimal:2',
+        'data_activated_at' => 'datetime',
+        'data_activation_failed_at' => 'datetime',
     ];
 
     /**
