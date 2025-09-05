@@ -180,7 +180,7 @@
                                     </form>
 
                                     <!-- Delete Button -->
-                                    <form method="POST" action="{{ route('admin.networks.destroy', $network) }}" class="inline">
+                                    {{-- <form method="POST" action="{{ route('admin.networks.destroy', $network) }}" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -189,7 +189,7 @@
                                                 title="Delete Network">
                                             <i class="fas fa-trash text-sm"></i>
                                         </button>
-                                    </form>
+                                    </form> --}}
                                 </div>
                             </td>
                         </tr>
