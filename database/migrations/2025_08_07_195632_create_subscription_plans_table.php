@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->integer('duration_days'); // Plan duration in days
-            $table->string('speed'); // e.g., "100 Mbps"
+            $table->string('plainid');
             $table->string('data_limit')->nullable(); // e.g., "Unlimited", "500 GB"
             $table->json('features')->nullable(); // Additional features as JSON
             $table->boolean('is_active')->default(true);

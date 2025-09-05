@@ -121,7 +121,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Test N3tdata API
     Route::get('/test-n3tdata', function() {
         $helper = new \App\Helpers\N3tDataHelper();
-        $result = $helper->getBalance();
-        return response()->json($result);
+
+        // Test getting access token
+        $tokenResult = $helper->getAccessToken();
+
+        // Test getting balance (which also tests access token)
+        $balanceResult = $helper->getBalance();
+
+        return response()->json([
+            'access_token_test' => $tokenResult,
+            'balance_test' => $balanceResult,
+            'timestamp' => now()->toDateTimeString()
+        ], 200, [], JSON_PRETTY_PRINT);
     })->name('test.n3tdata');
 });

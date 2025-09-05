@@ -14,6 +14,7 @@ class SubscriptionPlan extends Model
         'description',
         'price',
         'duration_days',
+        'plainid',
         'speed',
         'data_limit',
         'features',

@@ -15,8 +15,8 @@ class N3tDataHelper
     public function __construct()
     {
         // Get credentials from settings or environment
-        $this->username = env('N3TDATA_USERNAME', 'holluman@gmail.com');
-        $this->password = env('N3TDATA_PASSWORD', 'PecuGold123@');
+        $this->username = env('N3TDATA_USERNAME', 'holluman');
+        $this->password = env('N3TDATA_PASSWORD', 'Hollumidey19@');
     }
 
     /**
@@ -177,36 +177,22 @@ class N3tDataHelper
 
     /**
      * Map subscription plan to N3tdata data plan ID
-     * You'll need to configure this based on your subscription plans and N3tdata's data plans
+     * Gets the plainid from the subscription_plans table
      */
     public function mapDataPlanId($subscriptionPlan)
     {
-        // This is a basic mapping - you should create a more sophisticated mapping
-        // based on your subscription plans and N3tdata's available data plans
-
-        // Example mapping based on plan names or IDs
-        $planMappings = [
-            // Format: 'your_plan_identifier' => 'n3tdata_plan_id'
-            'basic' => 1,
-            'standard' => 2,
-            'premium' => 3,
-            // You can also map by plan ID
-            1 => 1, // Basic plan
-            2 => 2, // Standard plan
-            3 => 3, // Premium plan
-        ];
-
-        // Try to map by plan name first, then by ID
-        $planKey = strtolower($subscriptionPlan->name ?? '');
-        if (isset($planMappings[$planKey])) {
-            return $planMappings[$planKey];
+        // Get the plainid directly from the subscription plan
+        if (isset($subscriptionPlan->plainid) && !empty($subscriptionPlan->plainid)) {
+            return $subscriptionPlan->plainid;
         }
 
-        if (isset($planMappings[$subscriptionPlan->id])) {
-            return $planMappings[$subscriptionPlan->id];
-        }
+        // Fallback: if plainid is not set, log warning and return default
+        Log::warning('Subscription plan plainid not found', [
+            'plan_id' => $subscriptionPlan->id ?? null,
+            'plan_name' => $subscriptionPlan->name ?? null
+        ]);
 
-        // Default fallback
+        // Default fallback to plan ID 1 if plainid is missing
         return 1;
     }
 }
