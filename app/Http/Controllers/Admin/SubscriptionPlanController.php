@@ -24,6 +24,35 @@ class SubscriptionPlanController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('admin.plans.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'duration_in_days' => 'required|integer|min:1',
+            'data_limit_in_gb' => 'required|integer|min:1',
+            'speed_limit_in_mbps' => 'required|integer|min:1',
+            'is_active' => 'required|boolean',
+            'sort_order' => 'required|integer|min:0',
+        ]);
+
+        SubscriptionPlan::create($request->all());
+
+        return redirect()->route('admin.plans.index')->with('success', 'Plan created successfully.');
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(SubscriptionPlan $plan)
