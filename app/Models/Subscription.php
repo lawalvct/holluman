@@ -27,6 +27,10 @@ class Subscription extends Model
         'n3tdata_response',
         'data_activated_at',
         'data_activation_failed_at',
+        'n3tdata_status',
+        'n3tdata_plan',
+        'n3tdata_amount',
+        'n3tdata_phone_number',
     ];
 
     protected $casts = [
@@ -36,6 +40,7 @@ class Subscription extends Model
         'n3tdata_response' => 'array',
         'auto_renew' => 'boolean',
         'amount_paid' => 'decimal:2',
+        'n3tdata_amount' => 'decimal:2',
         'data_activated_at' => 'datetime',
         'data_activation_failed_at' => 'datetime',
     ];

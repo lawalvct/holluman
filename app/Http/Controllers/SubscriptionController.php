@@ -350,11 +350,18 @@ class SubscriptionController extends Controller
             );
 
             if ($result['success']) {
-                // Update subscription with N3tdata response
+                // Parse N3tdata response for display columns
+                $responseData = $result['data'] ?? [];
+
+                // Update subscription with N3tdata response and parsed data
                 $subscription->update([
                     'n3tdata_request_id' => $requestId,
                     'n3tdata_response' => json_encode($result['data']),
-                    'data_activated_at' => now()
+                    'data_activated_at' => now(),
+                    'n3tdata_status' => $responseData['status'] ?? null,
+                    'n3tdata_plan' => $responseData['dataplan'] ?? null,
+                    'n3tdata_amount' => isset($responseData['amount']) ? (float)$responseData['amount'] : null,
+                    'n3tdata_phone_number' => $responseData['phone_number'] ?? null,
                 ]);
 
                 return [
@@ -362,6 +369,9 @@ class SubscriptionController extends Controller
                     'message' => 'Data subscription activated successfully on ' . ($result['data']['network'] ?? 'network')
                 ];
             } else {
+                // Parse failed response data
+                $responseData = $result['data'] ?? [];
+
                 // Log the failure but don't fail the entire process
                 Log::error('N3tdata activation failed for subscription', [
                     'subscription_id' => $subscription->id,
@@ -369,11 +379,15 @@ class SubscriptionController extends Controller
                     'error' => $result['message']
                 ]);
 
-                // Update subscription with failure info
+                // Update subscription with failure info and parsed data
                 $subscription->update([
                     'n3tdata_request_id' => $requestId,
                     'n3tdata_response' => json_encode($result),
-                    'data_activation_failed_at' => now()
+                    'data_activation_failed_at' => now(),
+                    'n3tdata_status' => $responseData['status'] ?? 'fail',
+                    'n3tdata_plan' => null,
+                    'n3tdata_amount' => null,
+                    'n3tdata_phone_number' => $subscription->subscriber_phone,
                 ]);
 
                 return [

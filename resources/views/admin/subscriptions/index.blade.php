@@ -105,8 +105,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N3tdata Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data Plan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount Paid</th>
                         <th class="px-6 py-3"></th>
                     </tr>
@@ -125,9 +126,24 @@
                                     {{ ucfirst($subscription->status) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->start_date ? $subscription->start_date->format('M d, Y') : '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->end_date ? $subscription->end_date->format('M d, Y') : '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">₦{{ number_format($subscription->amount_paid, 2) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($subscription->n3tdata_status)
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        {{ $subscription->n3tdata_status == 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ ucfirst($subscription->n3tdata_status) }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->n3tdata_plan ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->n3tdata_phone_number ?? $subscription->subscriber_phone ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>₦{{ number_format($subscription->amount_paid, 2) }}</div>
+                                @if($subscription->n3tdata_amount)
+                                    <div class="text-xs text-gray-500">N3t: ₦{{ number_format($subscription->n3tdata_amount, 2) }}</div>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <a href="{{ route('admin.subscriptions.show', $subscription) }}"
                                    class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md transition-colors"
@@ -138,7 +154,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No subscriptions found.</td>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No subscriptions found.</td>
                         </tr>
                     @endforelse
                 </tbody>

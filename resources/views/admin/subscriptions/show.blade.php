@@ -39,6 +39,52 @@
             </div>
         </div>
     </div>
+
+    <!-- N3tdata Information -->
+    <div class="bg-white rounded shadow p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">N3tdata Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">N3tdata Status</div>
+                @if($subscription->n3tdata_status)
+                    <span class="px-2 py-1 text-xs rounded {{ $subscription->n3tdata_status == 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ ucfirst($subscription->n3tdata_status) }}
+                    </span>
+                @else
+                    <span class="text-gray-400">Not processed</span>
+                @endif
+            </div>
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">Data Plan</div>
+                <div>{{ $subscription->n3tdata_plan ?? '-' }}</div>
+            </div>
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">N3tdata Amount</div>
+                <div>{{ $subscription->n3tdata_amount ? '₦' . number_format($subscription->n3tdata_amount, 2) : '-' }}</div>
+            </div>
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">Phone Number</div>
+                <div>{{ $subscription->n3tdata_phone_number ?? $subscription->subscriber_phone ?? '-' }}</div>
+            </div>
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">Request ID</div>
+                <div class="text-sm font-mono">{{ $subscription->n3tdata_request_id ?? '-' }}</div>
+            </div>
+            <div>
+                <div class="mb-2 text-gray-500 text-xs">Data Activated</div>
+                <div>{{ $subscription->data_activated_at ? $subscription->data_activated_at->format('M d, Y H:i') : '-' }}</div>
+            </div>
+        </div>
+
+        @if($subscription->n3tdata_response)
+            <div class="mt-6">
+                <div class="mb-2 text-gray-500 text-xs">Full N3tdata Response</div>
+                <div class="bg-gray-100 p-3 rounded text-xs font-mono overflow-x-auto">
+                    {{ json_encode($subscription->n3tdata_response, JSON_PRETTY_PRINT) }}
+                </div>
+            </div>
+        @endif
+    </div>
     <div class="flex space-x-4">
         <form action="{{ route('admin.subscriptions.update-status', $subscription) }}" method="POST">
             @csrf

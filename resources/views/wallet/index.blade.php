@@ -219,29 +219,32 @@
 
             <form action="{{ route('wallet.fund') }}" method="POST">
                 @csrf
-                <div class="mb-4">
-                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Amount (NGN)</label>
-                    <input type="number" name="amount" id="amount" min="100" step="1" required
-                           class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                           placeholder="Enter amount">
-                    <p class="mt-1 text-xs text-gray-500">Minimum amount: ₦100</p>
+                <div class="mb-6">
+                    <label for="amount" class="block text-sm font-semibold text-gray-800 mb-3">Amount (NGN)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₦</span>
+                        <input type="number" name="amount" id="amount" min="100" step="1" required
+                               class="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-lg font-medium"
+                               placeholder="0.00">
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-md">💡 Minimum amount: ₦100</p>
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    {{-- <div class="space-y-2">
-                        <label class="flex items-center">
-                            <input type="radio" name="gateway" value="paystack" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
-                            <span class="ml-2 text-sm text-gray-700">Paystack</span>
-                        </label> --}}
-                        <label class="flex items-center">
-                            <input type="radio" name="gateway" value="nomba" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" {{ !$nombaConfigured ? 'disabled' : '' }}>
-                            <span class="ml-2 text-sm {{ !$nombaConfigured ? 'text-gray-400' : 'text-gray-700' }}">
-                                Nomba
+                    <label class="block text-sm font-semibold text-gray-800 mb-3">Payment Method</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 cursor-pointer transition-colors duration-200">
+                            <input type="radio" name="gateway" value="nomba" class="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300" {{ !$nombaConfigured ? 'disabled' : 'checked' }}>
+                            <div class="ml-3">
+                                <span class="text-sm font-medium {{ !$nombaConfigured ? 'text-gray-400' : 'text-gray-800' }}">
+                                    Nomba Payment Gateway
+                                </span>
                                 @if(!$nombaConfigured)
-                                    <span class="text-xs text-red-500">(Not configured)</span>
+                                    <span class="block text-xs text-red-500 mt-1">⚠️ Not configured</span>
+                                @else
+                                    <span class="block text-xs text-gray-500 mt-1">Secure card & bank transfer payments</span>
                                 @endif
-                            </span>
+                            </div>
                         </label>
                     </div>
                 </div>
