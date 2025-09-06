@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veasat - Stay Connected</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         :root {
             --primary-color: #2563EB;
@@ -14,6 +15,7 @@
         .text-primary { color: var(--primary-color); }
         .border-primary { border-color: var(--primary-color); }
         .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans">
@@ -52,7 +54,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Mobile menu -->
         <div x-show="mobileMenuOpen" x-cloak class="md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
@@ -77,10 +79,10 @@
                 @guest
                 <div class="bg-gray-50 p-8 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Sign In</h2>
-                    
+
                     <form method="POST" action="{{ route('login') }}" class="space-y-4">
                         @csrf
-                        
+
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                             <input id="email" name="email" type="email" required
@@ -109,9 +111,9 @@
                             Sign In
                         </button>
                     </form>
-                    
+
                     <p class="mt-4 text-center text-sm text-gray-600">
-                        Don't have an account? 
+                        Don't have an account?
                         <a href="{{ route('register') }}" class="text-primary hover:underline">Sign up</a>
                     </p>
                 </div>
