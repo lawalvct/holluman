@@ -100,18 +100,29 @@
                 <h3 class="text-lg font-medium text-gray-900">Wallet</h3>
                 <div class="flex space-x-2">
                     <button onclick="showWalletModal('credit')"
-                            class="text-green-600 hover:text-green-800 text-sm font-medium">
-                        Credit
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium">
+                        + Add Money
                     </button>
                     <button onclick="showWalletModal('debit')"
-                            class="text-red-600 hover:text-red-800 text-sm font-medium">
-                        Debit
+                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-medium">
+                        - Debit
                     </button>
                 </div>
             </div>
             <div class="mt-4">
                 <div class="text-3xl font-bold text-gray-900">{{ $user->wallet->formatted_balance }}</div>
                 <p class="text-sm text-gray-500">Current Balance</p>
+
+                <!-- Quick Credit Options -->
+                <div class="mt-3">
+                    <p class="text-xs text-gray-500 mb-2">Quick Credit:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="quickCredit(500)" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-medium">₦500</button>
+                        <button onclick="quickCredit(1000)" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-medium">₦1,000</button>
+                        <button onclick="quickCredit(2000)" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-medium">₦2,000</button>
+                        <button onclick="quickCredit(5000)" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-medium">₦5,000</button>
+                    </div>
+                </div>
             </div>
             <div class="mt-4 pt-4 border-t border-gray-200">
                 <h4 class="text-sm font-medium text-gray-900 mb-2">Recent Transactions</h4>
@@ -296,6 +307,39 @@
 </div>
 
 <script>
+function quickCredit(amount) {
+    if (confirm('Are you sure you want to credit ₦' + amount.toLocaleString() + ' to {{ $user->name }}\'s wallet?')) {
+        // Create and submit a quick credit form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("admin.users.credit-wallet", $user) }}';
+
+        // CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
+
+        // Amount
+        const amountInput = document.createElement('input');
+        amountInput.type = 'hidden';
+        amountInput.name = 'amount';
+        amountInput.value = amount;
+        form.appendChild(amountInput);
+
+        // Description
+        const descInput = document.createElement('input');
+        descInput.type = 'hidden';
+        descInput.name = 'description';
+        descInput.value = 'Quick credit of ₦' + amount.toLocaleString() + ' by admin';
+        form.appendChild(descInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
 function showWalletModal(type) {
     const modal = document.getElementById('walletModal');
     const form = document.getElementById('walletForm');

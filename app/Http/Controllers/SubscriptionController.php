@@ -385,8 +385,8 @@ class SubscriptionController extends Controller
                     'n3tdata_response' => json_encode($result),
                     'data_activation_failed_at' => now(),
                     'n3tdata_status' => $responseData['status'] ?? 'fail',
-                    'n3tdata_plan' => null,
-                    'n3tdata_amount' => null,
+                    'n3tdata_plan' => $responseData['dataplan'] ?? null,
+                    'n3tdata_amount' =>  isset($responseData['amount']) ? (float)$responseData['amount'] : null,
                     'n3tdata_phone_number' => $subscription->subscriber_phone,
                 ]);
 

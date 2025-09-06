@@ -128,7 +128,7 @@
 
     <!-- Users Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
-      
+
 
         @if($users->count() > 0)
             <div class="overflow-x-auto">
@@ -166,6 +166,10 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $user->wallet->formatted_balance }}</div>
+                                    <button onclick="quickTopUp({{ $user->id }}, '{{ $user->name }}')"
+                                            class="text-xs text-green-600 hover:text-green-800 font-medium">
+                                        + Top Up
+                                    </button>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ $user->subscriptions_count }} total</div>
@@ -223,4 +227,43 @@
         @endif
     </div>
 </div>
+
+<script>
+function quickTopUp(userId, userName) {
+    const amount = prompt(`Enter amount to credit to ${userName}'s wallet:`, '1000');
+    if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+        const description = prompt('Description for this transaction:', `Quick top-up of ₦${parseFloat(amount).toLocaleString()} by admin`);
+        if (description) {
+            // Create and submit form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/users/${userId}/credit-wallet`;
+
+            // CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+
+            // Amount
+            const amountInput = document.createElement('input');
+            amountInput.type = 'hidden';
+            amountInput.name = 'amount';
+            amountInput.value = amount;
+            form.appendChild(amountInput);
+
+            // Description
+            const descInput = document.createElement('input');
+            descInput.type = 'hidden';
+            descInput.name = 'description';
+            descInput.value = description;
+            form.appendChild(descInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+</script>
 @endsection
