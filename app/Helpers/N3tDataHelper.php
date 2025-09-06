@@ -193,6 +193,6 @@ class N3tDataHelper
         ]);
 
         // Default fallback to plan ID 1 if plainid is missing
-        return 1;
+        return 2;
     }
 }

@@ -85,7 +85,7 @@
         <div class="bg-white shadow-lg rounded-xl p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Subscribe to {{ $plan->name }}</h2>
 
-            @if($activeSubscription)
+            {{-- @if($activeSubscription)
                 <!-- User has active subscription -->
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
                     <div class="flex items-center">
@@ -100,8 +100,8 @@
                             </p>
                         </div>
                     </div>
-                </div>
-            @else
+                </div> --}}
+
                 <!-- Account Info -->
                 <div class="mb-6">
                     <div class="bg-gray-50 rounded-lg p-4">
@@ -482,7 +482,7 @@
                         </a>
                     </div>
                 @endif
-            @endif
+          
         </div>
     </div>
 
