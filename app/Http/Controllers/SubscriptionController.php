@@ -67,9 +67,9 @@ class SubscriptionController extends Controller
 
         // Check if user already has an active subscription
         $activeSubscription = $user->activeSubscription();
-        if ($activeSubscription) {
-            return back()->with('error', 'You already have an active subscription. Please wait for it to expire or contact support.');
-        }
+        // if ($activeSubscription) {
+        //     return back()->with('error', 'You already have an active subscription. Please wait for it to expire or contact support.');
+        // }
 
         DB::beginTransaction();
         try {
@@ -333,7 +333,7 @@ class SubscriptionController extends Controller
             $n3tDataHelper = new \App\Helpers\N3tDataHelper();
 
             // Map local network ID to N3tdata network ID
-            $n3tNetworkId = $n3tDataHelper->mapNetworkId($subscription->network_id);
+            $n3tNetworkId = $subscription->network_id;
 
             // Map subscription plan to N3tdata data plan ID using network's n3tdata_plainid
             $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan, $subscription->network_id);
