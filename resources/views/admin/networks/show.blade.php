@@ -70,6 +70,10 @@
                                 <dd class="text-sm text-gray-900">{{ $network->code }}</dd>
                             </div>
                             <div>
+                                <dt class="text-sm font-medium text-gray-500">N3tdata Plan ID</dt>
+                                <dd class="text-sm text-gray-900">{{ $network->n3tdata_plainid ?? 'Not set' }}</dd>
+                            </div>
+                            <div>
                                 <dt class="text-sm font-medium text-gray-500">Network Type</dt>
                                 <dd class="text-sm text-gray-900">{{ ucfirst($network->type) }}</dd>
                             </div>

@@ -131,7 +131,19 @@
                         <h2 class="text-lg font-semibold text-gray-900 lg:hidden">@yield('title', 'Admin Panel')</h2>
                     </div>
 
-                    <!-- User menu -->
+                    <!-- N3tdata Balance Display -->
+                    <div class="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-lg">
+                        <span class="text-sm font-medium text-gray-600">N3tdata Balance:</span>
+                        <span id="n3tdata-balance" class="text-sm font-bold text-green-600">₦0.00</span>
+                        <button id="refresh-balance"
+                                class="ml-2 p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
+                                title="Refresh Balance">
+                            <i class="fas fa-sync-alt text-xs"></i>
+                        </button>
+                        <span id="balance-status" class="text-xs text-gray-400 hidden">Loading...</span>
+                    </div>
+
+                <!-- User menu -->
                     <div class="flex items-center space-x-4">
                         <!-- Notifications -->
                         <button class="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-primary">
@@ -199,5 +211,156 @@
             </main>
         </div>
     </div>
+
+    <!-- N3tdata Balance Management Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const balanceElement = document.getElementById('n3tdata-balance');
+            const refreshButton = document.getElementById('refresh-balance');
+            const statusElement = document.getElementById('balance-status');
+            const BALANCE_CACHE_KEY = 'n3tdata_balance_cache';
+            const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+            // Function to format currency
+            function formatCurrency(amount) {
+                return '₦' + parseFloat(amount).toLocaleString('en-NG', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            // Function to update balance display
+            function updateBalanceDisplay(balance, fromCache = false) {
+                balanceElement.textContent = formatCurrency(balance);
+                balanceElement.className = parseFloat(balance) > 0
+                    ? 'text-sm font-bold text-green-600'
+                    : 'text-sm font-bold text-red-600';
+
+                if (fromCache) {
+                    statusElement.textContent = 'Cached';
+                    statusElement.className = 'text-xs text-blue-500';
+                    statusElement.classList.remove('hidden');
+                    setTimeout(() => statusElement.classList.add('hidden'), 2000);
+                }
+            }
+
+            // Function to show loading state
+            function showLoading() {
+                refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>';
+                refreshButton.disabled = true;
+                statusElement.textContent = 'Loading...';
+                statusElement.className = 'text-xs text-gray-500';
+                statusElement.classList.remove('hidden');
+            }
+
+            // Function to hide loading state
+            function hideLoading() {
+                refreshButton.innerHTML = '<i class="fas fa-sync-alt text-xs"></i>';
+                refreshButton.disabled = false;
+                setTimeout(() => statusElement.classList.add('hidden'), 2000);
+            }
+
+            // Function to show error state
+            function showError(message) {
+                statusElement.textContent = message || 'Error';
+                statusElement.className = 'text-xs text-red-500';
+                statusElement.classList.remove('hidden');
+                balanceElement.textContent = '₦0.00';
+                balanceElement.className = 'text-sm font-bold text-red-600';
+            }
+
+            // Function to get cached balance
+            function getCachedBalance() {
+                try {
+                    const cached = localStorage.getItem(BALANCE_CACHE_KEY);
+                    if (cached) {
+                        const data = JSON.parse(cached);
+                        const now = new Date().getTime();
+
+                        if (now - data.timestamp < CACHE_DURATION) {
+                            return data.balance;
+                        } else {
+                            localStorage.removeItem(BALANCE_CACHE_KEY);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error reading cached balance:', error);
+                    localStorage.removeItem(BALANCE_CACHE_KEY);
+                }
+                return null;
+            }
+
+            // Function to cache balance
+            function cacheBalance(balance) {
+                try {
+                    const data = {
+                        balance: balance,
+                        timestamp: new Date().getTime()
+                    };
+                    localStorage.setItem(BALANCE_CACHE_KEY, JSON.stringify(data));
+                } catch (error) {
+                    console.error('Error caching balance:', error);
+                }
+            }
+
+            // Function to fetch balance from API
+            function fetchBalance(forceRefresh = false) {
+                if (!forceRefresh) {
+                    const cached = getCachedBalance();
+                    if (cached !== null) {
+                        updateBalanceDisplay(cached, true);
+                        return;
+                    }
+                }
+
+                showLoading();
+
+                fetch('{{ route("admin.n3tdata.balance") }}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        const balance = data.balance || 0;
+                        updateBalanceDisplay(balance);
+                        cacheBalance(balance);
+
+                        statusElement.textContent = 'Updated';
+                        statusElement.className = 'text-xs text-green-500';
+                    } else {
+                        showError(data.message || 'Failed to fetch balance');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Error fetching balance:', error);
+                    showError('Connection failed');
+                });
+            }
+
+            // Event listener for refresh button
+            refreshButton.addEventListener('click', function() {
+                fetchBalance(true); // Force refresh
+            });
+
+            // Load balance on page load
+            fetchBalance();
+
+            // Auto-refresh every 10 minutes
+            setInterval(() => {
+                fetchBalance(true);
+            }, 10 * 60 * 1000);
+        });
+    </script>
 </body>
 </html>

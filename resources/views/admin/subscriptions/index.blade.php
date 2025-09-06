@@ -145,11 +145,29 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
-                                <a href="{{ route('admin.subscriptions.show', $subscription) }}"
-                                   class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md transition-colors"
-                                   title="View Details">
-                                    <i class="fas fa-eye text-sm"></i>
-                                </a>
+                                <div class="flex items-center space-x-2 justify-end">
+                                    <a href="{{ route('admin.subscriptions.show', $subscription) }}"
+                                       class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-md transition-colors"
+                                       title="View Details">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
+
+                                    @if($subscription->n3tdata_status !== 'success' && in_array($subscription->status, ['active', 'expired']))
+                                        <form action="{{ route('admin.subscriptions.retry-n3tdata', $subscription) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-md transition-colors text-xs"
+                                                    title="Retry N3tdata Activation (Payment Successful)"
+                                                    onclick="return confirm('Retry N3tdata activation for this subscription?')">
+                                                🔄
+                                            </button>
+                                        </form>
+                                    @elseif($subscription->n3tdata_status !== 'success' && $subscription->status === 'pending')
+                                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs" title="Payment Pending">
+                                            ⏳
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

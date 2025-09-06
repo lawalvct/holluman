@@ -41,6 +41,15 @@
                     @error('code')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                 </div>
 
+                <div>
+                    <label for="n3tdata_plainid" class="block text-sm font-medium text-gray-700 mb-2">N3tdata Plan ID</label>
+                    <input type="text" id="n3tdata_plainid" name="n3tdata_plainid" value="{{ old('n3tdata_plainid') }}"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., 1, 2, 3, 4">
+                    {{-- <p class="text-sm text-gray-500 mt-1">N3tdata API network identifier (e.g., 1=MTN, 2=Airtel, 3=Glo, 4=9Mobile)</p> --}}
+                    @error('n3tdata_plainid')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
+                </div>
+
                 {{-- <div>
                     <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                     <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}"

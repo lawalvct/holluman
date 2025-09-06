@@ -12,6 +12,7 @@ class Network extends Model
     protected $fillable = [
         'name',
         'code',
+        'n3tdata_plainid',
         'full_name',
         'description',
         'image',

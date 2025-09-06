@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Setting;
+use App\Models\Network;
 
 class N3tDataHelper
 {
@@ -159,12 +160,30 @@ class N3tDataHelper
     }
 
     /**
-     * Map local network ID to N3tdata network ID
-     * You may need to adjust these mappings based on your network setup
+     * Map local network ID to N3tdata network ID using the n3tdata_plainid field
      */
     public function mapNetworkId($localNetworkId)
     {
-        // This mapping should be adjusted based on your Network model and N3tdata's network IDs
+        // Get network by ID
+        $network = Network::find($localNetworkId);
+
+        if ($network && !empty($network->n3tdata_plainid)) {
+            Log::info('Using n3tdata_plainid for network mapping', [
+                'local_network_id' => $localNetworkId,
+                'network_name' => $network->name,
+                'n3tdata_plainid' => $network->n3tdata_plainid
+            ]);
+
+            return (int)$network->n3tdata_plainid;
+        }
+
+        // Fallback: if n3tdata_plainid is not set, log warning and use fallback mapping
+        Log::warning('Network n3tdata_plainid not found, using fallback mapping', [
+            'local_network_id' => $localNetworkId,
+            'network_name' => $network->name ?? 'Unknown'
+        ]);
+
+        // Fallback mapping for backwards compatibility
         $networkMap = [
             1 => 1, // MTN
             2 => 2, // Airtel
@@ -177,22 +196,34 @@ class N3tDataHelper
 
     /**
      * Map subscription plan to N3tdata data plan ID
-     * Gets the plainid from the subscription_plans table
+     * Uses the network's n3tdata_plainid instead of subscription plan plainid
      */
-    public function mapDataPlanId($subscriptionPlan)
+    public function mapDataPlanId($subscriptionPlan, $networkId = null)
     {
-        // Get the plainid directly from the subscription plan
-        if (isset($subscriptionPlan->plainid) && !empty($subscriptionPlan->plainid)) {
-            return $subscriptionPlan->plainid;
+        // If network ID is provided, get the network's n3tdata_plainid
+        if ($networkId) {
+            $network = Network::find($networkId);
+
+            if ($network && !empty($network->n3tdata_plainid)) {
+                Log::info('Using network n3tdata_plainid for data plan mapping', [
+                    'network_id' => $networkId,
+                    'network_name' => $network->name,
+                    'n3tdata_plainid' => $network->n3tdata_plainid,
+                    'plan_name' => $subscriptionPlan->name ?? null
+                ]);
+
+                return (int)$network->n3tdata_plainid;
+            }
         }
 
-        // Fallback: if plainid is not set, log warning and return default
-        Log::warning('Subscription plan plainid not found', [
+        // Fallback: if network n3tdata_plainid is not set, log warning and return default
+        Log::warning('Network n3tdata_plainid not found for data plan mapping', [
+            'network_id' => $networkId,
             'plan_id' => $subscriptionPlan->id ?? null,
             'plan_name' => $subscriptionPlan->name ?? null
         ]);
 
-        // Default fallback to plan ID 1 if plainid is missing
-        return 2;
+        // Default fallback to plan ID 1 if network plainid is missing
+        return 1;
     }
 }

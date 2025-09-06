@@ -102,20 +102,26 @@ class TestN3tDataApi extends Command
         $this->info('   HTTP Status: ' . $response2->status());
         $this->info('   Response: ' . json_encode($result2, JSON_PRETTY_PRINT));
 
-        // Test plan mapping
+        // Test plan mapping with networks
         $this->newLine();
-        $this->info('6. Testing plan mapping...');
+        $this->info('6. Testing plan mapping with networks...');
 
-        // Get a subscription plan to test mapping
-        $plans = \App\Models\SubscriptionPlan::active()->take(3)->get();
+        // Get networks and subscription plans to test mapping
+        $networks = \App\Models\Network::active()->take(3)->get();
+        $plans = \App\Models\SubscriptionPlan::active()->take(2)->get();
 
-        if ($plans->count() > 0) {
-            foreach ($plans as $plan) {
-                $mappedId = $helper->mapDataPlanId($plan);
-                $this->info("   Plan: {$plan->name} (ID: {$plan->id}) -> N3tdata Plan ID: {$mappedId} (plainid: {$plan->plainid})");
+        if ($networks->count() > 0 && $plans->count() > 0) {
+            foreach ($networks as $network) {
+                $this->info("   Network: {$network->name} (ID: {$network->id}, N3tdata PlainID: " . ($network->n3tdata_plainid ?? 'Not Set') . ")");
+
+                foreach ($plans as $plan) {
+                    $mappedId = $helper->mapDataPlanId($plan, $network->id);
+                    $this->info("     Plan: {$plan->name} -> N3tdata Plan ID: {$mappedId}");
+                }
+                $this->info("   " . str_repeat('-', 40));
             }
         } else {
-            $this->warn('   No subscription plans found in database');
+            $this->warn('   No networks or subscription plans found in database');
         }
 
         return 0;

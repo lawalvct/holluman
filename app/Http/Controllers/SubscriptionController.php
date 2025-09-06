@@ -335,8 +335,8 @@ class SubscriptionController extends Controller
             // Map local network ID to N3tdata network ID
             $n3tNetworkId = $n3tDataHelper->mapNetworkId($subscription->network_id);
 
-            // Map subscription plan to N3tdata data plan ID
-            $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan);
+            // Map subscription plan to N3tdata data plan ID using network's n3tdata_plainid
+            $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan, $subscription->network_id);
 
             // Generate unique request ID
             $requestId = 'SUB_' . $subscription->id . '_' . time();

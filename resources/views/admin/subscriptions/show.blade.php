@@ -84,6 +84,90 @@
                 </div>
             </div>
         @endif
+
+        <!-- N3tdata Retry Button -->
+        @if($subscription->n3tdata_status !== 'success' && in_array($subscription->status, ['active', 'expired']))
+            <div class="mt-6 pt-4 border-t border-gray-200">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-yellow-800">N3tdata Activation Issue</h4>
+                            <p class="text-sm text-yellow-700 mt-1">
+                                The subscription payment was successful, but the data activation with N3tdata API has failed or is pending.
+                                You can retry the activation using the button below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.subscriptions.retry-n3tdata', $subscription) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit"
+                            class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded text-sm font-medium"
+                            onclick="return confirm('Are you sure you want to retry N3tdata activation for this subscription?')">
+                        🔄 Retry N3tdata Activation
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 mt-2">
+                    This will reset the N3tdata status and attempt to activate the data subscription again using the N3tdata API.
+                </p>
+            </div>
+        @elseif($subscription->n3tdata_status !== 'success' && $subscription->status === 'pending')
+            <div class="mt-6 pt-4 border-t border-gray-200">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-blue-800">Payment Pending</h4>
+                            <p class="text-sm text-blue-700 mt-1">
+                                This subscription payment is still pending. N3tdata activation will be attempted automatically once payment is confirmed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($subscription->n3tdata_status !== 'success' && $subscription->status === 'cancelled')
+            <div class="mt-6 pt-4 border-t border-gray-200">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-800">Subscription Cancelled</h4>
+                            <p class="text-sm text-gray-700 mt-1">
+                                This subscription has been cancelled. N3tdata activation is not available for cancelled subscriptions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="mt-6 pt-4 border-t border-gray-200">
+                <div class="flex items-center text-green-600">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-sm font-medium">N3tdata activation completed successfully</span>
+                </div>
+                @if($subscription->data_activated_at)
+                    <p class="text-xs text-gray-500 mt-1">
+                        Activated on {{ $subscription->data_activated_at->format('M d, Y \a\t H:i') }}
+                    </p>
+                @endif
+            </div>
+        @endif
     </div>
     <div class="flex space-x-4">
         <form action="{{ route('admin.subscriptions.update-status', $subscription) }}" method="POST">

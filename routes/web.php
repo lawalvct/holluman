@@ -89,6 +89,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
     Route::get('/subscriptions/{subscription}', [AdminController::class, 'showSubscription'])->name('subscriptions.show');
     Route::patch('/subscriptions/{subscription}/status', [AdminController::class, 'updateSubscriptionStatus'])->name('subscriptions.update-status');
+    Route::post('/subscriptions/{subscription}/retry-n3tdata', [AdminController::class, 'retryN3tDataActivation'])->name('subscriptions.retry-n3tdata');
     Route::delete('/subscriptions/{subscription}', [AdminController::class, 'destroySubscription'])->name('subscriptions.destroy');
 
     // Payments Management
@@ -110,6 +111,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
      Route::post('/settings', [AdminController::class, 'settings'])->name('settings');
+
+    // N3tdata Balance API
+    Route::get('/n3tdata-balance', [AdminController::class, 'getN3tdataBalance'])->name('n3tdata.balance');
 
     // User Sims Management
     Route::get('/sims', [AdminController::class, 'sims'])->name('sims');

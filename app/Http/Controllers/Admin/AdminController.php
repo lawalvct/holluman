@@ -12,6 +12,7 @@ use App\Models\WalletTransaction;
 use App\Models\Network;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
@@ -126,6 +127,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             $topPlans = collect();
         }
+            $n3tdataBalance = $this->getN3tdataBalance();
 
         return view('dashboard.admin', compact(
             'totalUsers',
@@ -134,7 +136,8 @@ class AdminController extends Controller
             'monthlyRevenue',
             'recentSubscriptions',
             'recentPayments',
-            'topPlans'
+            'topPlans',
+               'n3tdataBalance'
         ));
     }
 
@@ -702,4 +705,204 @@ class AdminController extends Controller
         $subscription->delete();
         return redirect()->route('admin.subscriptions')->with('success', 'Subscription deleted.');
     }
-}
+
+    /**
+     * Retry N3tdata activation for a subscription
+     */
+    public function retryN3tDataActivation(Subscription $subscription)
+    {
+        DB::beginTransaction();
+        try {
+            // Check if subscription is eligible for retry
+            if ($subscription->n3tdata_status === 'success') {
+                return back()->with('warning', 'N3tdata activation was already successful for this subscription.');
+            }
+
+            // Check if subscription payment was successful
+            if (!in_array($subscription->status, ['active', 'expired'])) {
+                return back()->with('error', 'Cannot retry N3tdata activation. Subscription payment must be successful first. Current status: ' . $subscription->status);
+            }
+
+            // Reset N3tdata fields before retry
+            $subscription->update([
+                'n3tdata_status' => null,
+                'n3tdata_plan' => null,
+                'n3tdata_amount' => null,
+                'n3tdata_phone_number' => null,
+                'n3tdata_request_id' => null,
+                'n3tdata_response' => null,
+                'data_activated_at' => null,
+            ]);
+
+            // Activate data subscription using the same method from SubscriptionController
+            $dataActivationResult = $this->activateDataSubscriptionForAdmin($subscription);
+
+            DB::commit();
+
+            if ($dataActivationResult['success']) {
+                Log::info('N3tdata retry successful', [
+                    'subscription_id' => $subscription->id,
+                    'admin_id' => auth()->id()
+                ]);
+
+                return back()->with('success', 'N3tdata activation retry successful! ' . $dataActivationResult['message']);
+            } else {
+                return back()->with('error', 'N3tdata activation retry failed: ' . $dataActivationResult['message']);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('N3tdata retry exception', [
+                'subscription_id' => $subscription->id,
+                'admin_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', 'An error occurred while retrying N3tdata activation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Activate data subscription using N3tdata API (Admin version)
+     */
+    private function activateDataSubscriptionForAdmin($subscription)
+    {
+        try {
+            $n3tDataHelper = new \App\Helpers\N3tDataHelper();
+
+            // Map local network ID to N3tdata network ID
+            $n3tNetworkId = $n3tDataHelper->mapNetworkId($subscription->network_id);
+
+            // Map subscription plan to N3tdata data plan ID using network's n3tdata_plainid
+            $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan, $subscription->network_id);
+
+            // Generate unique request ID for retry
+            $requestId = 'RETRY_' . $subscription->id . '_' . time();
+
+            // Purchase data subscription
+            $result = $n3tDataHelper->purchaseDataSubscription(
+                $n3tNetworkId,
+                $subscription->subscriber_phone,
+                $dataPlanId,
+                $requestId
+            );
+
+            if ($result['success']) {
+                // Parse N3tdata response for display columns
+                $responseData = $result['data'] ?? [];
+
+                // Update subscription with N3tdata response and parsed data
+                $subscription->update([
+                    'n3tdata_status' => 'success',
+                    'n3tdata_plan' => $responseData['dataplan'] ?? null,
+                    'n3tdata_amount' => $responseData['amount'] ?? $subscription->amount_paid,
+                    'n3tdata_phone_number' => $responseData['phone_number'] ?? $subscription->subscriber_phone,
+                    'n3tdata_request_id' => $requestId,
+                    'n3tdata_response' => $responseData,
+                    'data_activated_at' => now(),
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => $responseData['message'] ?? 'Data activation completed successfully'
+                ];
+            } else {
+                // Parse failed response data
+                $responseData = $result['data'] ?? [];
+
+                // Update subscription with failure info and parsed data
+                $subscription->update([
+                    'n3tdata_status' => 'failed',
+                    'n3tdata_plan' => $responseData['dataplan'] ?? null,
+                    'n3tdata_amount' => $responseData['amount'] ?? null,
+                    'n3tdata_phone_number' => $subscription->subscriber_phone,
+                    'n3tdata_request_id' => $requestId,
+                    'n3tdata_response' => $responseData,
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => $result['message'] ?? 'Data activation failed'
+                ];
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Exception during admin data subscription retry', [
+                'subscription_id' => $subscription->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Technical error during data activation: ' . $e->getMessage()
+            ];
+        }
+    }
+
+     //GET N3tdata balance
+    public function getN3tdataBalance()
+    {
+        try {
+            $n3tDataHelper = new \App\Helpers\N3tDataHelper();
+            $balanceResult = $n3tDataHelper->getBalance();
+
+            if ($balanceResult['success']) {
+                // Convert string balance to float (remove commas and convert)
+                $balance = $balanceResult['balance'];
+
+                // Remove commas and convert to float
+                if (is_string($balance)) {
+                    $balance = str_replace(',', '', $balance);
+                }
+
+                $balanceFloat = (float) $balance;
+
+                // Return JSON response for AJAX requests
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'balance' => $balanceFloat,
+                        'formatted_balance' => '₦' . number_format($balanceFloat, 2),
+                        'timestamp' => now()->toISOString()
+                    ]);
+                }
+
+                // Return just the balance for non-AJAX requests
+                return $balanceFloat;
+            } else {
+                // Log the error
+                Log::warning('Failed to fetch N3tdata balance', [
+                    'error' => $balanceResult['message'] ?? 'Unknown error'
+                ]);
+
+                // Return JSON response for AJAX requests
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'balance' => 0.0,
+                        'message' => $balanceResult['message'] ?? 'Failed to fetch balance',
+                        'timestamp' => now()->toISOString()
+                    ], 500);
+                }
+
+                return 0.0;
+            }
+        } catch (\Exception $e) {
+            // Log the exception
+            Log::error('Exception while fetching N3tdata balance', [
+                'error' => $e->getMessage()
+            ]);
+
+            // Return JSON response for AJAX requests
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'balance' => 0.0,
+                    'message' => 'Connection error: ' . $e->getMessage(),
+                    'timestamp' => now()->toISOString()
+                ], 500);
+            }
+
+            return 0.0;
+        }
+    }}
