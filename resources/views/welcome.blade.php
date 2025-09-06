@@ -19,7 +19,7 @@
 <body class="bg-gray-50 font-sans">
 
     <!-- Navigation -->
-    <nav class="bg-white shadow-md">
+    <nav class="bg-white shadow-md" x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex-shrink-0">
@@ -41,6 +41,30 @@
                         @endguest
                     </div>
                 </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-primary hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path :class="{'hidden': mobileMenuOpen, 'inline-flex': !mobileMenuOpen }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path :class="{'hidden': !mobileMenuOpen, 'inline-flex': mobileMenuOpen }" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div x-show="mobileMenuOpen" x-cloak class="md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+                <a href="#features" class="text-gray-700 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Features</a>
+                <a href="#plans" class="text-gray-700 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Plans</a>
+                <a href="#contact" class="text-gray-700 hover:text-primary block px-3 py-2 rounded-md text-base font-medium">Contact</a>
+                @guest
+                    <a href="{{ route('login') }}" class="bg-gray-200 text-gray-700 hover:bg-gray-300 block px-3 py-2 rounded-md text-base font-medium">Login</a>
+                    <a href="{{ route('register') }}" class="bg-primary text-white hover:bg-primary-hover block px-3 py-2 rounded-md text-base font-medium">Get Started</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="bg-primary text-white hover:bg-primary-hover block px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
+                @endguest
             </div>
         </div>
     </nav>
