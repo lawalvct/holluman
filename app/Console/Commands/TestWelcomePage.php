@@ -37,7 +37,7 @@ class TestWelcomePage extends Command
             $companyLogo = SettingsHelper::getCompanyLogo();
             $companySettings = SettingsHelper::getCompanySettings();
             $metaSettings = SettingsHelper::getMetaSettings();
-            
+
             $this->info("   Company Name: {$companyName}");
             $this->info("   Company Logo: {$companyLogo}");
             $this->info("   ✅ SettingsHelper working correctly");
@@ -46,7 +46,7 @@ class TestWelcomePage extends Command
             // Test the controller method
             $this->info('2. Testing SubscriptionController welcome method:');
             $controller = new SubscriptionController();
-            
+
             // This will test if the method can run without errors
             $this->info("   Controller class loaded successfully");
             $this->info("   ✅ SubscriptionController can access SettingsHelper");
@@ -59,7 +59,7 @@ class TestWelcomePage extends Command
                 $displayValue = strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value;
                 $this->info("     {$key}: {$displayValue}");
             }
-            
+
             $this->newLine();
             $this->info("   Meta Settings:");
             foreach ($metaSettings as $key => $value) {

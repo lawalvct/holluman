@@ -34,8 +34,11 @@
                         <div class="flex">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
-                                <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="text-xl font-bold text-blue-600">
-                                    Holluman ISP
+                                <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('dashboard') }}" class="flex items-center space-x-2">
+                                    @if(!empty($companySettings['logo']))
+                                        <img src="{{ $companySettings['logo'] }}" alt="{{ $companySettings['name'] ?? 'Company Logo' }}" class="h-8 w-auto">
+                                    @endif
+                                    <span class="text-xl font-bold text-blue-600">{{ $companySettings['name'] ?? 'ISP CRM' }}</span>
                                 </a>
                             </div>
 

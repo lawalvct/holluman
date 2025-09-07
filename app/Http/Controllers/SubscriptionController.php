@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
         $plans = SubscriptionPlan::active()->ordered()->take(4)->get();
         $companySettings = SettingsHelper::getCompanySettings();
         $metaSettings = SettingsHelper::getMetaSettings();
-        
+
         return view('welcome', compact('plans', 'companySettings', 'metaSettings'));
     }
 
