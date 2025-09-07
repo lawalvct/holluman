@@ -39,7 +39,12 @@
         <div class="fixed inset-y-0 left-0 z-50 w-64 bg-primary transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0"
              :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
             <div class="flex items-center justify-center h-16 bg-primary-hover">
-                <h1 class="text-white text-xl font-bold">Veasat Admin</h1>
+                <div class="flex items-center space-x-2">
+                    @if(!empty($companySettings['logo']))
+                        <img src="{{ $companySettings['logo'] }}" alt="{{ $companySettings['name'] ?? 'Company Logo' }}" class="h-8 w-auto">
+                    @endif
+                    <h1 class="text-white text-xl font-bold">{{ $companySettings['name'] ?? 'Admin' }}</h1>
+                </div>
             </div>
             <nav class="mt-8">
                 <div class="px-4 space-y-2">
