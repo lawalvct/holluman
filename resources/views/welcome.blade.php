@@ -7,8 +7,32 @@
     <meta name="description" content="{{ $metaSettings['description'] ?? 'Professional internet data subscription service' }}">
     <meta name="keywords" content="{{ $metaSettings['keywords'] ?? 'internet, data, subscription, nigeria' }}">
     <meta name="author" content="{{ $metaSettings['author'] ?? $companySettings['name'] ?? 'Veasat' }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ $companySettings['logo'] ?? asset('favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ $companySettings['logo'] ?? asset('favicon.ico') }}">
+
+    <!-- OpenGraph Tags for WhatsApp and Social Media -->
+    <meta property="og:title" content="{{ $companySettings['name'] ?? 'Veasat' }} - Stay Connected">
+    <meta property="og:description" content="{{ $metaSettings['description'] ?? 'Professional internet data subscription service. Stay connected wherever you go with high-speed internet.' }}">
+    <meta property="og:image" content="{{ $companySettings['logo'] ?? asset('images/logo.png') }}">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $companySettings['name'] ?? 'Veasat' }}">
+
+    <!-- WhatsApp specific -->
+    <meta property="og:image:width" content="300">
+    <meta property="og:image:height" content="300">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $companySettings['name'] ?? 'Veasat' }} - Stay Connected">
+    <meta name="twitter:description" content="{{ $metaSettings['description'] ?? 'Professional internet data subscription service' }}">
+    <meta name="twitter:image" content="{{ $companySettings['logo'] ?? asset('images/logo.png') }}">
+
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
         :root {
             --primary-color: #2563EB;
