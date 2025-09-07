@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veasat - Stay Connected</title>
+    <title>{{ $companySettings['name'] ?? 'Veasat' }} - Stay Connected</title>
+    <meta name="description" content="{{ $metaSettings['description'] ?? 'Professional internet data subscription service' }}">
+    <meta name="keywords" content="{{ $metaSettings['keywords'] ?? 'internet, data, subscription, nigeria' }}">
+    <meta name="author" content="{{ $metaSettings['author'] ?? $companySettings['name'] ?? 'Veasat' }}">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -26,8 +29,10 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex-shrink-0">
                     <a href="/" class="flex items-center text-2xl font-bold text-primary">
-                        <img src="{{ asset('images/logo.png') }}" alt="Veasat Logo" class="h-8">
-                        <span class="ml-2">Veasat</span>
+                        <img src="{{ $companySettings['logo'] ?? asset('images/logo.png') }}"
+                             alt="{{ $companySettings['name'] ?? 'Veasat' }} Logo"
+                             class="h-8">
+                        <span class="ml-2">{{ $companySettings['name'] ?? 'Veasat' }}</span>
                     </a>
                 </div>
                 <div class="hidden md:block">
@@ -130,8 +135,8 @@
                 <!-- Hero Content -->
                 <div class="text-center lg:text-left">
                     <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                        <span class="block">Seamless Internet for Your</span>
-                        <span class="block text-primary">Camera Phone</span>
+                        <span class="block">Seamless Internet with</span>
+                        <span class="block text-primary">{{ $companySettings['name'] ?? 'Veasat' }}</span>
                     </h1>
                     <p class="mt-4 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl">
                         Stay connected wherever you go. Subscribe to high-speed internet directly on your Nigerian camera phone number. No extra hardware needed.
@@ -279,15 +284,28 @@
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold">Veasat</h3>
+                    <h3 class="text-xl font-bold">{{ $companySettings['name'] ?? 'Veasat' }}</h3>
                     <p class="mt-2 text-gray-400">Your partner in connectivity.</p>
+                    @if($companySettings['address'])
+                        <p class="mt-2 text-gray-400 text-sm">{{ $companySettings['address'] }}</p>
+                    @endif
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold">Contact Us</h3>
                     <ul class="mt-2 space-y-2">
-                        <li>Email: support@veasat.com</li>
-                        <li>Phone: +234 800 123 4567</li>
-                        <li>Address: 123 Innovation Drive, Ikeja, Lagos, Nigeria</li>
+                        @if($companySettings['email'])
+                            <li>Email: {{ $companySettings['email'] }}</li>
+                        @endif
+                        @if($companySettings['support_phone'])
+                            <li>Phone: {{ $companySettings['support_phone'] }}</li>
+                        @endif
+                        @if($companySettings['support_email'] && $companySettings['support_email'] !== $companySettings['email'])
+                            <li>Support: {{ $companySettings['support_email'] }}</li>
+                        @endif
+                        @if(!$companySettings['email'] && !$companySettings['support_phone'])
+                            <li>Email: support@veasat.com</li>
+                            <li>Phone: +234 800 123 4567</li>
+                        @endif
                     </ul>
                 </div>
                 <div>
@@ -300,7 +318,7 @@
                 </div>
             </div>
             <div class="mt-8 border-t border-gray-700 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Veasat. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} {{ $companySettings['name'] ?? 'Veasat' }}. All rights reserved.</p>
             </div>
         </div>
     </footer>

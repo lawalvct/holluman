@@ -7,6 +7,7 @@ use App\Models\SubscriptionPlan;
 use App\Models\Subscription;
 use App\Models\Payment;
 use App\Models\Wallet;
+use App\Helpers\SettingsHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +21,10 @@ class SubscriptionController extends Controller
     public function welcome()
     {
         $plans = SubscriptionPlan::active()->ordered()->take(4)->get();
-        return view('welcome', compact('plans'));
+        $companySettings = SettingsHelper::getCompanySettings();
+        $metaSettings = SettingsHelper::getMetaSettings();
+        
+        return view('welcome', compact('plans', 'companySettings', 'metaSettings'));
     }
 
     /**
