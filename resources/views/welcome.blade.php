@@ -20,6 +20,7 @@
         .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
         [x-cloak] { display: none !important; }
     </style>
+    <meta name="google-site-verification" content="D91uSsHJs_ApKAxjoNcI0K0oz0wF4sqGgZ6ONkhaADI" />
 </head>
 <body class="bg-gray-50 font-sans">
 
