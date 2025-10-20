@@ -153,14 +153,17 @@
                                     </a>
 
                                     @if($subscription->n3tdata_status !== 'success' && in_array($subscription->status, ['active', 'expired']))
-                                        <form action="{{ route('admin.subscriptions.retry-n3tdata', $subscription) }}" method="POST" class="inline">
+                                        <form action="{{ route('admin.subscriptions.retry-n3tdata', $subscription) }}" method="POST" class="inline retry-form">
                                             @csrf
                                             <button type="submit"
-                                                    class="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-md transition-colors text-xs"
+                                                    class="retry-btn inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 rounded-md transition-colors text-xs"
                                                     title="Retry N3tdata Activation (Payment Successful)"
-                                                    onclick="return confirm('Retry N3tdata activation for this subscription?')">
-                                                🔄
+                                                    onclick="return handleRetryClick(this)">
+                                                🔄 <span class="ml-1">Retry</span>
                                             </button>
+                                            <span class="retry-loading hidden inline-flex items-center px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-xs">
+                                                <i class="fas fa-spinner fa-spin mr-1"></i> Processing...
+                                            </span>
                                         </form>
                                     @elseif($subscription->n3tdata_status !== 'success' && $subscription->status === 'pending')
                                         <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs" title="Payment Pending">
@@ -184,4 +187,33 @@
         </div>
     </div>
 </div>
+
+<script>
+function handleRetryClick(button) {
+    // Show confirmation dialog
+    if (!confirm('Retry N3tdata activation for this subscription?')) {
+        return false;
+    }
+
+    // Get the form and loading elements
+    const form = button.closest('.retry-form');
+    const retryBtn = form.querySelector('.retry-btn');
+    const loadingSpan = form.querySelector('.retry-loading');
+
+    // Hide the retry button and show loading state
+    retryBtn.classList.add('hidden');
+    loadingSpan.classList.remove('hidden');
+
+    // Disable the button to prevent further clicks
+    button.disabled = true;
+
+    // Submit the form programmatically
+    setTimeout(() => {
+        form.submit();
+    }, 100);
+
+    // Prevent default form submission (we'll handle it above)
+    return false;
+}
+</script>
 @endsection

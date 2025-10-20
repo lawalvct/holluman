@@ -116,7 +116,18 @@ class SubscriptionController extends Controller
             } else {
 
                 // Pay with payment gateway (Paystack/Nomba)
-                $subscription = $this->createSubscription($user, $plan, $request->payment_method, $request->network_id, $request->subscriber_phone);
+                // Log the parameters before creating subscription
+                Log::info('Creating subscription with payment gateway', [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'plan_id' => $plan->id,
+                    'plan_name' => $plan->name,
+                    'payment_method' => $request->payment_method,
+                    'network_id' => $request->network_id,
+                    'subscriber_phone' => $request->subscriber_phone,
+                ]);
+
+               $subscription = $this->createSubscription($user, $plan, $request->payment_method, $request->network_id, $request->subscriber_phone);
 
                 // Create payment record
                 $payment = Payment::create([

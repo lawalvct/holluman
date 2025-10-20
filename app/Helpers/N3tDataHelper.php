@@ -92,6 +92,13 @@ class N3tDataHelper
                 'request-id' => $requestId
             ];
 
+            // Log the exact payload being sent to N3tdata
+            Log::info('N3tdata API Request Payload', [
+                'payload' => $payload,
+                'access_token_prefix' => substr($accessToken, 0, 10) . '...',
+                'endpoint' => $this->baseUrl . '/data'
+            ]);
+
             // Make the API call
             $response = Http::withHeaders([
                 'Authorization' => 'Token ' . $accessToken,

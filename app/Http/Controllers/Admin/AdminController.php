@@ -735,6 +735,8 @@ class AdminController extends Controller
             ]);
 
             // Activate data subscription using the same method from SubscriptionController
+
+
             $dataActivationResult = $this->activateDataSubscriptionForAdmin($subscription);
 
             DB::commit();
@@ -770,14 +772,26 @@ class AdminController extends Controller
         try {
             $n3tDataHelper = new \App\Helpers\N3tDataHelper();
 
-            // Map local network ID to N3tdata network ID
-            $n3tNetworkId = $n3tDataHelper->mapNetworkId($subscription->network_id);
+            // Use the direct network ID (not mapped)
+            $n3tNetworkId = $subscription->network_id;
 
             // Map subscription plan to N3tdata data plan ID using network's n3tdata_plainid
             $dataPlanId = $n3tDataHelper->mapDataPlanId($subscription->subscriptionPlan, $subscription->network_id);
 
             // Generate unique request ID for retry
             $requestId = 'RETRY_' . $subscription->id . '_' . time();
+
+            // Log what we're sending to N3tdata
+            Log::info('Sending data to N3tdata API (Admin Retry)', [
+                'subscription_id' => $subscription->id,
+                'n3tNetworkId' => $n3tNetworkId,
+                'subscriber_phone' => $subscription->subscriber_phone,
+                'dataPlanId' => $dataPlanId,
+                'requestId' => $requestId,
+                'network_name' => $subscription->network->name ?? 'Unknown',
+                'plan_name' => $subscription->subscriptionPlan->name ?? 'Unknown',
+                'amount_paid' => $subscription->amount_paid,
+            ]);
 
             // Purchase data subscription
             $result = $n3tDataHelper->purchaseDataSubscription(
