@@ -137,6 +137,12 @@
                             <label for="remember" class="ml-2 text-sm text-gray-700">Remember me</label>
                         </div>
 
+                        <div class="text-sm">
+                            <a href="{{ route('password.request') }}" class="font-medium text-primary hover:underline">
+                                Forgot your password?
+                            </a>
+                        </div>
+
                         <button type="submit" class="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary">
                             Sign In
                         </button>
