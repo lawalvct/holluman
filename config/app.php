@@ -74,6 +74,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cron Job Security Token
+    |--------------------------------------------------------------------------
+    |
+    | This token is used to secure cron job endpoints. Make sure to set this
+    | to a random, secure string in your .env file.
+    |
+    */
+
+    'cron_token' => env('CRON_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

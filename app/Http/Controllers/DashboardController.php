@@ -8,16 +8,28 @@ use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\WalletTransaction;
+use App\Services\SubscriptionStatusService;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    protected $subscriptionStatusService;
+
+    public function __construct(SubscriptionStatusService $subscriptionStatusService)
+    {
+        $this->subscriptionStatusService = $subscriptionStatusService;
+    }
+
     /**
      * User dashboard
      */
     public function index()
     {
         $user = Auth::user();
+
+        // Check and update user's subscription statuses (cached for 10 minutes)
+        $this->subscriptionStatusService->updateUserSubscriptionStatuses($user->id);
+
         $wallet = $user->wallet;
 
         // Get user's active subscription

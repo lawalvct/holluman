@@ -8,6 +8,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\SimController;
+use App\Http\Controllers\CronController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,13 @@ use App\Http\Controllers\SimController;
 
 // Home page - show available plans
 Route::get('/', [SubscriptionController::class, 'welcome'])->name('welcome');
+
+// Cron Job Endpoints (Public - Protected by Token)
+Route::prefix('cron')->name('cron.')->group(function () {
+    Route::get('/health', [CronController::class, 'health'])->name('health');
+    Route::get('/update-subscriptions', [CronController::class, 'updateSubscriptions'])->name('update-subscriptions');
+    Route::get('/subscription-stats', [CronController::class, 'getSubscriptionStats'])->name('subscription-stats');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
