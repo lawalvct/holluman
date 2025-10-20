@@ -45,6 +45,13 @@ Route::middleware('guest')->group(function () {
 // Logout (available to all authenticated users)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Email Verification Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/email/verify', [AuthController::class, 'showVerifyEmail'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])->name('verification.resend');
+});
+
 // Payment callback routes (accessible without authentication middleware for webhooks)
 Route::post('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 Route::get('/payment/callback/nomba', [WalletController::class, 'handleNombaCallback'])->name('payment.callback.nomba');
@@ -52,7 +59,7 @@ Route::get('/payment/callback/nomba/subscription', [SubscriptionController::clas
 Route::post('/payment/webhook/nomba', [WalletController::class, 'handleNombaWebhook'])->name('payment.webhook.nomba');
 
 // User Dashboard Routes
-Route::middleware(['auth', 'user'])->group(function () {
+Route::middleware(['auth', 'user', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Subscription Routes

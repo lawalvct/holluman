@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Notifications\WelcomeNotification;
 
 class AuthController extends Controller
 {
@@ -59,7 +62,10 @@ class AuthController extends Controller
         // Log the user in
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Registration successful! Welcome to our ISP service.');
+        // Send email verification notification
+        $user->sendEmailVerificationNotification();
+
+        return redirect()->route('verification.notice')->with('success', 'Registration successful! Please verify your email address to access your dashboard.');
     }
 
     /**
@@ -241,5 +247,52 @@ class AuthController extends Controller
         return $status === Password::PASSWORD_RESET
             ? redirect()->route('login')->with('status', __($status))
             : back()->withErrors(['email' => [__($status)]]);
+    }
+
+    /**
+     * Show email verification notice
+     */
+    public function showVerifyEmail()
+    {
+        return view('auth.verify-email');
+    }
+
+    /**
+     * Handle email verification
+     */
+    public function verifyEmail(Request $request)
+    {
+        $user = User::findOrFail($request->route('id'));
+
+        if (! hash_equals((string) $request->route('hash'), sha1($user->getEmailForVerification()))) {
+            return redirect()->route('verification.notice')->withErrors(['email' => 'Invalid verification link.']);
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('dashboard')->with('success', 'Your email is already verified!');
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
+
+            // Send welcome email after verification
+            $user->notify(new WelcomeNotification());
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Your email has been verified successfully! Welcome to Veesta!');
+    }
+
+    /**
+     * Resend email verification notification
+     */
+    public function resendVerification(Request $request)
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->route('dashboard');
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'A new verification link has been sent to your email address!');
     }
 }
