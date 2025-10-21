@@ -45,3 +45,14 @@ try {
     DB::rollback();
     echo "❌ Error: " . $e->getMessage() . "\n";
 }
+
+
+// i did this on phpmyadmin
+// SET FOREIGN_KEY_CHECKS = 0;
+
+// -- Step 1: Swap IDs
+// UPDATE networks SET id = 999 WHERE id = 2;
+// UPDATE networks SET id = 2 WHERE id = 3;
+// UPDATE networks SET id = 3 WHERE id = 999;
+
+// SET FOREIGN_KEY_CHECKS = 1;
