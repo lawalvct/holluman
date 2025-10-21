@@ -77,4 +77,12 @@ class Network extends Model
         }
         return 'All Nigeria';
     }
+
+    /**
+     * Relationship: Network has many N3tdata plans
+     */
+    public function n3tdataPlans()
+    {
+        return $this->hasMany(N3tdataPlan::class);
+    }
 }

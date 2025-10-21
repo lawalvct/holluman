@@ -42,11 +42,21 @@
                 </div>
 
                 <div>
-                    <label for="n3tdata_plainid" class="block text-sm font-medium text-gray-700 mb-2">N3tdata Plan ID</label>
-                    <input type="text" id="n3tdata_plainid" name="n3tdata_plainid" value="{{ old('n3tdata_plainid') }}"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                           placeholder="e.g., 1, 2, 3, 4">
-                    {{-- <p class="text-sm text-gray-500 mt-1">N3tdata API network identifier (e.g., 1=MTN, 2=Airtel, 3=Glo, 4=9Mobile)</p> --}}
+                    <label for="n3tdata_plainid" class="block text-sm font-medium text-gray-700 mb-2">N3tdata Plan</label>
+                    <select id="n3tdata_plainid" name="n3tdata_plainid"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select N3tdata Plan</option>
+                        @foreach($n3tdataPlans->groupBy('network.name') as $networkName => $plans)
+                            <optgroup label="{{ $networkName }}">
+                                @foreach($plans as $plan)
+                                    <option value="{{ $plan->id }}" {{ old('n3tdata_plainid') == $plan->id ? 'selected' : '' }}>
+                                        {{ $plan->plan_type }} - {{ $plan->plan_name }} ({{ $plan->formatted_amount }}) - {{ $plan->duration }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                    <p class="text-sm text-gray-500 mt-1">Select the N3tdata plan for this network</p>
                     @error('n3tdata_plainid')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                 </div>
 

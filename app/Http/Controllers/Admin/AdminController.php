@@ -561,7 +561,14 @@ class AdminController extends Controller
      */
     public function createNetwork()
     {
-        return view('admin.networks.create');
+        // Get all N3tdata plans grouped by network
+        $n3tdataPlans = \App\Models\N3tdataPlan::with('network')
+            ->orderBy('network_id')
+            ->orderBy('plan_type')
+            ->orderBy('plan_name')
+            ->get();
+
+        return view('admin.networks.create', compact('n3tdataPlans'));
     }
 
     /**
@@ -609,7 +616,14 @@ class AdminController extends Controller
      */
     public function editNetwork(Network $network)
     {
-        return view('admin.networks.edit', compact('network'));
+        // Get all N3tdata plans grouped by network
+        $n3tdataPlans = \App\Models\N3tdataPlan::with('network')
+            ->orderBy('network_id')
+            ->orderBy('plan_type')
+            ->orderBy('plan_name')
+            ->get();
+
+        return view('admin.networks.edit', compact('network', 'n3tdataPlans'));
     }
 
     /**
