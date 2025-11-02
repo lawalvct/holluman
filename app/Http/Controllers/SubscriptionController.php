@@ -184,16 +184,30 @@ class SubscriptionController extends Controller
         $monthsTotal = 1; // Default to 1 month
         $needsRenewal = false;
 
-        if ($plan->duration_days >= 365) { // 1 year
+        // if ($plan->duration_days >= 365) { // 1 year
+        //     $monthsTotal = 12;
+        //     $needsRenewal = true;
+        // } elseif ($plan->duration_days >= 180) { // 6 months
+        //     $monthsTotal = 6;
+        //     $needsRenewal = true;
+        // } elseif ($plan->duration_days >= 90) { // 3 months
+        //     $monthsTotal = 3;
+        //     $needsRenewal = true;
+        // } elseif ($plan->duration_days >= 60) { // 2 months
+        //     $monthsTotal = 2;
+        //     $needsRenewal = true;
+        // }
+
+                if ($plan->duration_days >= 336) { // 1 year
             $monthsTotal = 12;
             $needsRenewal = true;
-        } elseif ($plan->duration_days >= 180) { // 6 months
+        } elseif ($plan->duration_days >= 168) { // 6 months
             $monthsTotal = 6;
             $needsRenewal = true;
-        } elseif ($plan->duration_days >= 90) { // 3 months
+        } elseif ($plan->duration_days >= 84) { // 3 months
             $monthsTotal = 3;
             $needsRenewal = true;
-        } elseif ($plan->duration_days >= 60) { // 2 months
+        } elseif ($plan->duration_days >= 56) { // 2 months
             $monthsTotal = 2;
             $needsRenewal = true;
         }
