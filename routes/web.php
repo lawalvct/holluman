@@ -111,6 +111,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/subscriptions/{subscription}', [AdminController::class, 'showSubscription'])->name('subscriptions.show');
     Route::patch('/subscriptions/{subscription}/status', [AdminController::class, 'updateSubscriptionStatus'])->name('subscriptions.update-status');
     Route::post('/subscriptions/{subscription}/retry-n3tdata', [AdminController::class, 'retryN3tDataActivation'])->name('subscriptions.retry-n3tdata');
+    Route::post('/subscriptions/{subscription}/renew-n3tdata', [AdminController::class, 'renewN3tDataSubscription'])->name('subscriptions.renew-n3tdata');
     Route::delete('/subscriptions/{subscription}', [AdminController::class, 'destroySubscription'])->name('subscriptions.destroy');
 
     // Payments Management

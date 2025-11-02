@@ -106,6 +106,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">N3tdata Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Renewal Progress</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data Plan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount Paid</th>
@@ -136,6 +137,27 @@
                                     <span class="text-gray-400">-</span>
                                 @endif
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($subscription->needs_renewal)
+                                    <div class="flex items-center space-x-2">
+                                        <div class="flex-1">
+                                            <div class="text-xs font-medium text-gray-700 mb-1">
+                                                {{ $subscription->months_activated }}/{{ $subscription->months_total }} months
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $subscription->renewal_progress }}%"></div>
+                                            </div>
+                                            @if($subscription->next_renewal_due_date)
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    Due: {{ $subscription->next_renewal_due_date->format('M d, Y') }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-xs text-gray-500">1 Month Plan</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->n3tdata_plan ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $subscription->n3tdata_phone_number ?? $subscription->subscriber_phone ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -152,7 +174,20 @@
                                         <i class="fas fa-eye text-sm"></i>
                                     </a>
 
-                                    @if($subscription->n3tdata_status !== 'success' && in_array($subscription->status, ['active', 'expired']))
+                                    @if($subscription->needsMonthlyRenewal())
+                                        <form action="{{ route('admin.subscriptions.renew-n3tdata', $subscription) }}" method="POST" class="inline renew-form">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="renew-btn inline-flex items-center px-2 py-1 {{ $subscription->isRenewalDue() ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-purple-100 text-purple-700 hover:bg-purple-200' }} rounded-md transition-colors text-xs"
+                                                    title="Renew N3tdata for Next Month ({{ $subscription->remaining_months }} months remaining)"
+                                                    onclick="return handleRenewClick(this, '{{ $subscription->months_activated + 1 }}', '{{ $subscription->months_total }}')">
+                                                🔄 <span class="ml-1">Renew Month {{ $subscription->months_activated + 1 }}</span>
+                                            </button>
+                                            <span class="renew-loading hidden inline-flex items-center px-2 py-1 bg-gray-100 text-gray-500 rounded-md text-xs">
+                                                <i class="fas fa-spinner fa-spin mr-1"></i> Renewing...
+                                            </span>
+                                        </form>
+                                    @elseif($subscription->n3tdata_status !== 'success' && in_array($subscription->status, ['active', 'expired']))
                                         <form action="{{ route('admin.subscriptions.retry-n3tdata', $subscription) }}" method="POST" class="inline retry-form">
                                             @csrf
                                             <button type="submit"
@@ -175,7 +210,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No subscriptions found.</td>
+                            <td colspan="9" class="px-6 py-4 text-center text-gray-500">No subscriptions found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -202,6 +237,33 @@ function handleRetryClick(button) {
 
     // Hide the retry button and show loading state
     retryBtn.classList.add('hidden');
+    loadingSpan.classList.remove('hidden');
+
+    // Disable the button to prevent further clicks
+    button.disabled = true;
+
+    // Submit the form programmatically
+    setTimeout(() => {
+        form.submit();
+    }, 100);
+
+    // Prevent default form submission (we'll handle it above)
+    return false;
+}
+
+function handleRenewClick(button, currentMonth, totalMonths) {
+    // Show confirmation dialog
+    if (!confirm(`Renew N3tdata for month ${currentMonth} of ${totalMonths}?`)) {
+        return false;
+    }
+
+    // Get the form and loading elements
+    const form = button.closest('.renew-form');
+    const renewBtn = form.querySelector('.renew-btn');
+    const loadingSpan = form.querySelector('.renew-loading');
+
+    // Hide the renew button and show loading state
+    renewBtn.classList.add('hidden');
     loadingSpan.classList.remove('hidden');
 
     // Disable the button to prevent further clicks

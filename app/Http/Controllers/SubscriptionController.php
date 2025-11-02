@@ -180,6 +180,24 @@ class SubscriptionController extends Controller
         $startDate = now();
         $endDate = $startDate->copy()->addDays($plan->duration_days);
 
+        // Calculate total months based on duration_days
+        $monthsTotal = 1; // Default to 1 month
+        $needsRenewal = false;
+
+        if ($plan->duration_days >= 365) { // 1 year
+            $monthsTotal = 12;
+            $needsRenewal = true;
+        } elseif ($plan->duration_days >= 180) { // 6 months
+            $monthsTotal = 6;
+            $needsRenewal = true;
+        } elseif ($plan->duration_days >= 90) { // 3 months
+            $monthsTotal = 3;
+            $needsRenewal = true;
+        } elseif ($plan->duration_days >= 60) { // 2 months
+            $monthsTotal = 2;
+            $needsRenewal = true;
+        }
+
         return Subscription::create([
             'user_id' => $user->id,
             'subscription_plan_id' => $plan->id,
@@ -190,6 +208,9 @@ class SubscriptionController extends Controller
             'start_date' => $startDate,
             'end_date' => $endDate,
             'status' => 'pending',
+            'months_total' => $monthsTotal,
+            'months_activated' => 0,
+            'needs_renewal' => $needsRenewal,
             'plan_snapshot' => [
                 'name' => $plan->name,
                 'description' => $plan->description,
@@ -368,6 +389,14 @@ class SubscriptionController extends Controller
                 // Parse N3tdata response for display columns
                 $responseData = $result['data'] ?? [];
 
+                // Calculate next renewal date (1 month from now) if subscription needs renewal
+                $nextRenewalDate = null;
+                $newMonthsActivated = $subscription->months_activated + 1;
+
+                if ($subscription->needs_renewal && $newMonthsActivated < $subscription->months_total) {
+                    $nextRenewalDate = now()->addMonth();
+                }
+
                 // Update subscription with N3tdata response and parsed data
                 $subscription->update([
                     'n3tdata_request_id' => $requestId,
@@ -377,11 +406,15 @@ class SubscriptionController extends Controller
                     'n3tdata_plan' => $responseData['dataplan'] ?? null,
                     'n3tdata_amount' => isset($responseData['amount']) ? (float)$responseData['amount'] : null,
                     'n3tdata_phone_number' => $responseData['phone_number'] ?? null,
+                    'months_activated' => $newMonthsActivated,
+                    'last_n3tdata_activation_date' => now(),
+                    'next_renewal_due_date' => $nextRenewalDate,
                 ]);
 
                 return [
                     'success' => true,
-                    'message' => 'Data subscription activated successfully on ' . ($result['data']['network'] ?? 'network')
+                    'message' => 'Data subscription activated successfully on ' . ($result['data']['network'] ?? 'network') .
+                                 ($subscription->needs_renewal ? " (Month {$newMonthsActivated}/{$subscription->months_total})" : '')
                 ];
             } else {
                 // Parse failed response data

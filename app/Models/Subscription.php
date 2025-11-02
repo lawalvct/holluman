@@ -31,6 +31,11 @@ class Subscription extends Model
         'n3tdata_plan',
         'n3tdata_amount',
         'n3tdata_phone_number',
+        'months_total',
+        'months_activated',
+        'last_n3tdata_activation_date',
+        'next_renewal_due_date',
+        'needs_renewal',
     ];
 
     protected $casts = [
@@ -43,6 +48,9 @@ class Subscription extends Model
         'n3tdata_amount' => 'decimal:2',
         'data_activated_at' => 'datetime',
         'data_activation_failed_at' => 'datetime',
+        'last_n3tdata_activation_date' => 'datetime',
+        'next_renewal_due_date' => 'date',
+        'needs_renewal' => 'boolean',
     ];
 
     /**
@@ -128,5 +136,48 @@ class Subscription extends Model
     public function getFormattedAmountAttribute()
     {
         return '₦' . number_format($this->amount_paid, 2);
+    }
+
+    /**
+     * Check if subscription needs monthly N3tdata renewal
+     */
+    public function needsMonthlyRenewal(): bool
+    {
+        return $this->needs_renewal &&
+               $this->months_activated < $this->months_total &&
+               $this->status === 'active';
+    }
+
+    /**
+     * Check if renewal is due now
+     */
+    public function isRenewalDue(): bool
+    {
+        if (!$this->needs_renewal || !$this->next_renewal_due_date) {
+            return false;
+        }
+
+        return now()->greaterThanOrEqualTo($this->next_renewal_due_date) &&
+               $this->months_activated < $this->months_total;
+    }
+
+    /**
+     * Get renewal progress percentage
+     */
+    public function getRenewalProgressAttribute(): int
+    {
+        if ($this->months_total == 0) {
+            return 100;
+        }
+
+        return (int) (($this->months_activated / $this->months_total) * 100);
+    }
+
+    /**
+     * Get remaining months to renew
+     */
+    public function getRemainingMonthsAttribute(): int
+    {
+        return max(0, $this->months_total - $this->months_activated);
     }
 }

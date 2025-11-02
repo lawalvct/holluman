@@ -721,7 +721,79 @@ class AdminController extends Controller
     }
 
     /**
-     * Retry N3tdata activation for a subscription
+     * Renew N3tdata subscription for next month (for multi-month subscriptions)
+     */
+    public function renewN3tDataSubscription(Subscription $subscription)
+    {
+        DB::beginTransaction();
+        try {
+            // Check if subscription needs renewal
+            if (!$subscription->needsMonthlyRenewal()) {
+                return back()->with('error', 'This subscription does not need monthly renewal.');
+            }
+
+            // Check if all months are already activated
+            if ($subscription->months_activated >= $subscription->months_total) {
+                return back()->with('info', 'All months have been activated for this subscription.');
+            }
+
+            Log::info('Admin initiating N3tdata renewal', [
+                'subscription_id' => $subscription->id,
+                'current_month' => $subscription->months_activated,
+                'total_months' => $subscription->months_total,
+                'user_id' => $subscription->user_id,
+            ]);
+
+            // Activate data subscription for the next month
+            $result = $this->activateDataSubscriptionForAdmin($subscription);
+
+            if ($result['success']) {
+                // Calculate next renewal date (1 month from now) if there are more months
+                $newMonthsActivated = $subscription->months_activated + 1;
+                $nextRenewalDate = null;
+
+                if ($newMonthsActivated < $subscription->months_total) {
+                    $nextRenewalDate = now()->addMonth();
+                }
+
+                // Update renewal tracking
+                $subscription->update([
+                    'months_activated' => $newMonthsActivated,
+                    'last_n3tdata_activation_date' => now(),
+                    'next_renewal_due_date' => $nextRenewalDate,
+                ]);
+
+                DB::commit();
+
+                $remainingMonths = $subscription->months_total - $newMonthsActivated;
+                $message = "N3tdata renewed successfully! Month {$newMonthsActivated}/{$subscription->months_total} activated.";
+
+                if ($remainingMonths > 0) {
+                    $message .= " {$remainingMonths} month(s) remaining.";
+                } else {
+                    $message .= " All months completed!";
+                }
+
+                return back()->with('success', $message);
+            } else {
+                DB::rollback();
+                return back()->with('error', 'N3tdata renewal failed: ' . $result['message']);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('N3tdata renewal failed', [
+                'subscription_id' => $subscription->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Failed to renew N3tdata subscription: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Retry N3tdata activation for a subscription (Admin function)
      */
     public function retryN3tDataActivation(Subscription $subscription)
     {
