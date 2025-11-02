@@ -129,15 +129,21 @@ class AdminController extends Controller
         }
             $n3tdataBalance = $this->getN3tdataBalance();
 
+        $stats = [
+            'total_users' => $totalUsers,
+            'active_users' => $activeSubscriptions, // If you want active users, change this to count of active users
+            'total_subscriptions' => Subscription::count(),
+            'active_subscriptions' => $activeSubscriptions,
+            'monthly_revenue' => $monthlyRevenue,
+            'total_revenue' => $totalRevenue,
+        ];
+
         return view('dashboard.admin', compact(
-            'totalUsers',
-            'activeSubscriptions',
-            'totalRevenue',
-            'monthlyRevenue',
+            'stats',
             'recentSubscriptions',
             'recentPayments',
             'topPlans',
-               'n3tdataBalance'
+            'n3tdataBalance'
         ));
     }
 
