@@ -49,56 +49,93 @@
             <nav class="mt-8">
                 <div class="px-4 space-y-2">
                     <!-- Dashboard -->
+                    @if(auth()->user()->hasPermission('dashboard'))
                     <a href="{{ route('admin.dashboard') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.dashboard') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-tachometer-alt mr-3"></i>
                         Dashboard
                     </a>
+                    @endif
 
                     <!-- Users Management -->
+                    @if(auth()->user()->hasPermission('users'))
                     <a href="{{ route('admin.users') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.users*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-users mr-3"></i>
                         Users
                     </a>
-                        <a href="{{ route('admin.sims') }}" class="{{ request()->routeIs('admin.sims*') ? 'bg-primary-200' : '' }} flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-primary rounded-md">
-                            <span class="inline-block w-5"><i class="fas fa-sim-card"></i></span> User Sims
+                    @endif
+
+                    <!-- User Sims -->
+                    @if(auth()->user()->hasPermission('sims'))
+                        <a href="{{ route('admin.sims') }}" class="{{ request()->routeIs('admin.sims*') ? 'bg-primary-200' : '' }} flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md">
+                            <i class="fas fa-sim-card mr-3"></i>
+                            User Sims
                         </a>
+                    @endif
 
                     <!-- Subscription Plans -->
+                    @if(auth()->user()->hasPermission('plans'))
                     <a href="{{ route('admin.plans.index') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.plans*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-box mr-3"></i>
                         Plans
                     </a>
+                    @endif
 
                     <!-- Subscriptions -->
+                    @if(auth()->user()->hasPermission('subscriptions'))
                     <a href="{{ route('admin.subscriptions') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.subscriptions*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-sync-alt mr-3"></i>
                         Subscriptions
                     </a>
+                    @endif
 
                     <!-- Payments -->
+                    @if(auth()->user()->hasPermission('payments'))
                     <a href="{{ route('admin.payments') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.payments*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-credit-card mr-3"></i>
                         Payments
                     </a>
+                    @endif
 
                     <!-- Networks -->
+                    @if(auth()->user()->hasPermission('networks'))
                     <a href="{{ route('admin.networks') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.networks*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-network-wired mr-3"></i>
                         Networks
                     </a>
+                    @endif
 
                     <!-- Reports -->
+                    @if(auth()->user()->hasPermission('reports'))
                     <a href="{{ route('admin.reports') }}"
                        class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.reports*') ? 'bg-primary-hover text-white' : '' }}">
                         <i class="fas fa-chart-bar mr-3"></i>
                         Reports
                     </a>
+                    @endif
+
+                    <!-- Settings -->
+                    @if(auth()->user()->hasPermission('settings'))
+                    <a href="{{ route('admin.settings') }}"
+                       class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.settings*') ? 'bg-primary-hover text-white' : '' }}">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </a>
+                    @endif
+
+                    <!-- Admin Management (Superadmin Only) -->
+                    @if(auth()->user()->hasPermission('admin_management'))
+                    <a href="{{ route('admin.admins') }}"
+                       class="flex items-center px-4 py-2 text-gray-300 hover:bg-primary-hover hover:text-white rounded-md {{ request()->routeIs('admin.admins*') ? 'bg-primary-hover text-white' : '' }}">
+                        <i class="fas fa-user-shield mr-3"></i>
+                        Admin Management
+                    </a>
+                    @endif
                 </div>
 
                 <!-- Settings Section -->

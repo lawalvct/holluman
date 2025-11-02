@@ -97,52 +97,78 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Users Management
-    Route::get('/users', [AdminController::class, 'users'])->name('users');
-    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
-    Route::patch('/users/{user}/toggle-status', [AdminController::class, 'updateUserStatus'])->name('users.toggle-status');
-    Route::post('/users/{user}/credit-wallet', [AdminController::class, 'creditWallet'])->name('users.credit-wallet');
-    Route::post('/users/{user}/debit-wallet', [AdminController::class, 'debitWallet'])->name('users.debit-wallet');
+    Route::middleware(['permission:users'])->group(function () {
+        Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+        Route::patch('/users/{user}/toggle-status', [AdminController::class, 'updateUserStatus'])->name('users.toggle-status');
+        Route::post('/users/{user}/credit-wallet', [AdminController::class, 'creditWallet'])->name('users.credit-wallet');
+        Route::post('/users/{user}/debit-wallet', [AdminController::class, 'debitWallet'])->name('users.debit-wallet');
+    });
 
     // Plans Management
-    Route::resource('plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
+    Route::middleware(['permission:plans'])->group(function () {
+        Route::resource('plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
+    });
 
     // Subscriptions Management
-    Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
-    Route::get('/subscriptions/{subscription}', [AdminController::class, 'showSubscription'])->name('subscriptions.show');
-    Route::patch('/subscriptions/{subscription}/status', [AdminController::class, 'updateSubscriptionStatus'])->name('subscriptions.update-status');
-    Route::post('/subscriptions/{subscription}/retry-n3tdata', [AdminController::class, 'retryN3tDataActivation'])->name('subscriptions.retry-n3tdata');
-    Route::post('/subscriptions/{subscription}/renew-n3tdata', [AdminController::class, 'renewN3tDataSubscription'])->name('subscriptions.renew-n3tdata');
-    Route::delete('/subscriptions/{subscription}', [AdminController::class, 'destroySubscription'])->name('subscriptions.destroy');
+    Route::middleware(['permission:subscriptions'])->group(function () {
+        Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/subscriptions/{subscription}', [AdminController::class, 'showSubscription'])->name('subscriptions.show');
+        Route::patch('/subscriptions/{subscription}/status', [AdminController::class, 'updateSubscriptionStatus'])->name('subscriptions.update-status');
+        Route::post('/subscriptions/{subscription}/retry-n3tdata', [AdminController::class, 'retryN3tDataActivation'])->name('subscriptions.retry-n3tdata');
+        Route::post('/subscriptions/{subscription}/renew-n3tdata', [AdminController::class, 'renewN3tDataSubscription'])->name('subscriptions.renew-n3tdata');
+        Route::delete('/subscriptions/{subscription}', [AdminController::class, 'destroySubscription'])->name('subscriptions.destroy');
+    });
 
     // Payments Management
-    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
+    Route::middleware(['permission:payments'])->group(function () {
+        Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
+    });
 
     // Networks Management
-    Route::get('/networks', [AdminController::class, 'networks'])->name('networks');
-    Route::get('/networks/create', [AdminController::class, 'createNetwork'])->name('networks.create');
-    Route::post('/networks', [AdminController::class, 'storeNetwork'])->name('networks.store');
-    Route::get('/networks/{network}', [AdminController::class, 'showNetwork'])->name('networks.show');
-    Route::get('/networks/{network}/edit', [AdminController::class, 'editNetwork'])->name('networks.edit');
-    Route::put('/networks/{network}', [AdminController::class, 'updateNetwork'])->name('networks.update');
-    Route::patch('/networks/{network}/toggle-status', [AdminController::class, 'toggleNetworkStatus'])->name('networks.toggle-status');
-    Route::delete('/networks/{network}', [AdminController::class, 'destroyNetwork'])->name('networks.destroy');
+    Route::middleware(['permission:networks'])->group(function () {
+        Route::get('/networks', [AdminController::class, 'networks'])->name('networks');
+        Route::get('/networks/create', [AdminController::class, 'createNetwork'])->name('networks.create');
+        Route::post('/networks', [AdminController::class, 'storeNetwork'])->name('networks.store');
+        Route::get('/networks/{network}', [AdminController::class, 'showNetwork'])->name('networks.show');
+        Route::get('/networks/{network}/edit', [AdminController::class, 'editNetwork'])->name('networks.edit');
+        Route::put('/networks/{network}', [AdminController::class, 'updateNetwork'])->name('networks.update');
+        Route::patch('/networks/{network}/toggle-status', [AdminController::class, 'toggleNetworkStatus'])->name('networks.toggle-status');
+        Route::delete('/networks/{network}', [AdminController::class, 'destroyNetwork'])->name('networks.destroy');
+    });
 
     // Reports
-    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::middleware(['permission:reports'])->group(function () {
+        Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    });
 
     // Settings
-    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-     Route::post('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::middleware(['permission:settings'])->group(function () {
+        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+        Route::post('/settings', [AdminController::class, 'settings'])->name('settings');
+    });
+
+    // Admin Management (Superadmin only)
+    Route::middleware(['permission:admin_management'])->group(function () {
+        Route::get('/admins', [AdminController::class, 'admins'])->name('admins');
+        Route::get('/admins/create', [AdminController::class, 'createAdmin'])->name('admins.create');
+        Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admins.store');
+        Route::get('/admins/{admin}/edit', [AdminController::class, 'editAdmin'])->name('admins.edit');
+        Route::put('/admins/{admin}', [AdminController::class, 'updateAdmin'])->name('admins.update');
+        Route::delete('/admins/{admin}', [AdminController::class, 'destroyAdmin'])->name('admins.destroy');
+    });
 
     // N3tdata Balance API
     Route::get('/n3tdata-balance', [AdminController::class, 'getN3tdataBalance'])->name('n3tdata.balance');
 
     // User Sims Management
-    Route::get('/sims', [AdminController::class, 'sims'])->name('sims');
-    Route::get('/sims/{sim}', [AdminController::class, 'showSim'])->name('sims.show');
-    Route::get('/sims/{sim}/edit', [AdminController::class, 'editSim'])->name('sims.edit');
-    Route::put('/sims/{sim}', [AdminController::class, 'updateSim'])->name('sims.update');
-    Route::delete('/sims/{sim}', [AdminController::class, 'destroySim'])->name('sims.destroy');
+    Route::middleware(['permission:sims'])->group(function () {
+        Route::get('/sims', [AdminController::class, 'sims'])->name('sims');
+        Route::get('/sims/{sim}', [AdminController::class, 'showSim'])->name('sims.show');
+        Route::get('/sims/{sim}/edit', [AdminController::class, 'editSim'])->name('sims.edit');
+        Route::put('/sims/{sim}', [AdminController::class, 'updateSim'])->name('sims.update');
+        Route::delete('/sims/{sim}', [AdminController::class, 'destroySim'])->name('sims.destroy');
+    });
 
     // Test N3tdata API
     Route::get('/test-n3tdata', function() {

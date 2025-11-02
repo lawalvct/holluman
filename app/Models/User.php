@@ -27,6 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'role',
         'is_active',
+        'is_superadmin',
+        'permissions',
     ];
 
     /**
@@ -48,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'is_superadmin' => 'boolean',
+        'permissions' => 'array',
     ];
 
     /**
@@ -56,6 +60,86 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is superadmin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_superadmin === true && $this->id === 1;
+    }
+
+    /**
+     * Check if user has a specific permission
+     */
+    public function hasPermission(string $permission): bool
+    {
+        // Superadmin has all permissions
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        // Regular admins check their permissions array
+        if ($this->isAdmin() && is_array($this->permissions)) {
+            // Support two permission shapes:
+            // 1) associative: [ 'dashboard' => true, 'users' => true ]
+            // 2) indexed list: [ 'dashboard', 'users' ] (what the admin create form currently saves)
+            // Check associative shape first, then fallback to indexed list.
+            if (array_key_exists($permission, $this->permissions)) {
+                return $this->permissions[$permission] === true || $this->permissions[$permission] === 1;
+            }
+
+            // Fallback: indexed list of permission keys
+            return in_array($permission, $this->permissions, true);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has any of the specified permissions
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if user has all of the specified permissions
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (!$this->hasPermission($permission)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get all available permissions
+     */
+    public static function getAllPermissions(): array
+    {
+        return [
+            'dashboard' => 'Dashboard',
+            'users' => 'Users Management',
+            'sims' => 'SIMs Management',
+            'plans' => 'Plans Management',
+            'subscriptions' => 'Subscriptions Management',
+            'payments' => 'Payments Management',
+            'networks' => 'Networks Management',
+            'reports' => 'Reports',
+            'settings' => 'Settings',
+            'admin_management' => 'Admin Management',
+        ];
     }
 
     /**

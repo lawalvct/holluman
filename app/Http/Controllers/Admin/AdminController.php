@@ -1005,4 +1005,151 @@ class AdminController extends Controller
 
             return 0.0;
         }
+    }
+
+    /**
+     * Display all admin users (Superadmin only)
+     */
+    public function admins(Request $request)
+    {
+        // Check if user is superadmin
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized. Only superadmin can manage admins.');
+        }
+
+        $query = User::where('role', 'admin');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $admins = $query->latest()->paginate(15);
+
+        $stats = [
+            'total' => User::where('role', 'admin')->count(),
+            'superadmins' => User::where('is_superadmin', true)->count(),
+            'regular' => User::where('role', 'admin')->where('is_superadmin', false)->count(),
+        ];
+
+        return view('admin.admins.index', compact('admins', 'stats'));
+    }
+
+    /**
+     * Show create admin form (Superadmin only)
+     */
+    public function createAdmin()
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $permissions = User::getAllPermissions();
+        return view('admin.admins.create', compact('permissions'));
+    }
+
+    /**
+     * Store new admin (Superadmin only)
+     */
+    public function storeAdmin(Request $request)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:20',
+            'permissions' => 'required|array',
+        ]);
+
+        $admin = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'phone' => $request->phone,
+            'role' => 'admin',
+            'is_active' => true,
+            'is_superadmin' => false,
+            'permissions' => $request->permissions,
+        ]);
+
+        return redirect()->route('admin.admins')->with('success', 'Admin created successfully.');
+    }
+
+    /**
+     * Show edit admin form (Superadmin only)
+     */
+    public function editAdmin(User $admin)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Prevent editing superadmin
+        if ($admin->isSuperAdmin()) {
+            return back()->with('error', 'Superadmin cannot be edited.');
+        }
+
+        $permissions = User::getAllPermissions();
+        return view('admin.admins.edit', compact('admin', 'permissions'));
+    }
+
+    /**
+     * Update admin (Superadmin only)
+     */
+    public function updateAdmin(Request $request, User $admin)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Prevent editing superadmin
+        if ($admin->isSuperAdmin()) {
+            return back()->with('error', 'Superadmin cannot be edited.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $admin->id,
+            'phone' => 'nullable|string|max:20',
+            'permissions' => 'required|array',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $updateData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'permissions' => $request->permissions,
+            'is_active' => $request->has('is_active') ? (bool)$request->is_active : false,
+        ];
+
+        $admin->update($updateData);
+
+        return redirect()->route('admin.admins')->with('success', 'Admin updated successfully.');
+    }
+
+    /**
+     * Delete admin (Superadmin only)
+     */
+    public function destroyAdmin(User $admin)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // Prevent deleting superadmin
+        if ($admin->isSuperAdmin()) {
+            return back()->with('error', 'Superadmin cannot be deleted.');
+        }
+
+        $admin->delete();
+        return redirect()->route('admin.admins')->with('success', 'Admin deleted successfully.');
     }}
